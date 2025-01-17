@@ -3,4 +3,10 @@ name = "quasar_trajectory"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+
+[workspace]
+members = ["controller", "detector", "messages", "tracker"]
+
+[workspace.dependencies]
+opencv = "0.94.1"
+thiserror = "2.0.11"
