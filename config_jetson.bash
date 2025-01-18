@@ -1,3 +1,5 @@
+sudo apt install wget
+
 wget http://fishros.com/install -O fishros && . fishros
 
 sudo apt update
@@ -19,6 +21,9 @@ registry = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
 EOF
 
 cat >> ~/.bashrc <<EOF
+export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
+
 # >>> An Auspicious Script
 echo "You are coding in: " | lolcat
 figlet "Orin Nano" | lolcat

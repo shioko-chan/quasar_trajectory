@@ -5,3 +5,15 @@ edition = "2021"
 
 [dependencies]
 thiserror = { workspace = true }
+crossbeam-channel = { version = "0.5.14", optional = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "tube_benchmark"
+harness = false
+
+[features]
+default = []
+use_crossbeam = ["crossbeam-channel"]
