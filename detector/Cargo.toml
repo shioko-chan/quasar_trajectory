@@ -5,3 +5,13 @@ edition = "2021"
 
 [dependencies]
 thiserror = { workspace = true }
+libc = { workspace = true }
+
+[build-dependencies]
+bindgen = { workspace = true }
+cc = { workspace = true }
+
+[features]
+default = ["hikvision"]
+mindvision = []
+hikvision = []

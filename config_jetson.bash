@@ -24,13 +24,3 @@ cat >> ~/.bashrc <<EOF
 export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
 export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
 
-# >>> An Auspicious Script
-echo "You are coding in: " | lolcat
-figlet "Orin Nano" | lolcat
-echo "As the adage wisely states: " | lolcat 
-figlet "Exitus Acta Probat." | lolcat
-echo "Here is your fortune for reflection: " | lolcat
-echo
-fortune | lolcat
-# <<<
-EOF
