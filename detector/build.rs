@@ -26,7 +26,7 @@ fn main() {
     } else if cfg!(feature = "mindvision") {
         "mindvision"
     } else {
-        panic!()
+        panic!("请在features选项中指定相机品牌相应的开发包");
     };
 
     let bindings = bindgen::Builder::default()
@@ -35,11 +35,7 @@ fn main() {
         .expect("生成相机的 C API binding 时出错！");
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    bindings.write_to_file(out_path.join("camera.rs")).expect(
-        format!(
-            "向文件 \"{}\" 写入 C API binding 时出错！",
-            out_path.join("camera.rs").display(),
-        )
-        .as_str(),
-    );
+    bindings
+        .write_to_file(out_path.join("camera.rs"))
+        .expect("写入 C API binding 时出错！");
 }
