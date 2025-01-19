@@ -14,3 +14,6 @@ criterion = "0.5.1"
 bindgen = "0.71.1"
 libc = "0.2.169"
 cc = "1.2.10"
+
+[dependencies]
+detector = { path = "detector" }

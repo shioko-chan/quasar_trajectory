@@ -1,26 +1,25 @@
-// pub fn add(left: u64, right: u64) -> u64 {
-//     left + right
-// }
+#[cfg(feature = "hikvision")]
+include!(concat!(env!("OUT_DIR"), "/hikcamera/camera.rs"));
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+#[cfg(feature = "mindvision")]
+include!(concat!(env!("OUT_DIR"), "hikcamera/camera.rs"));
 
-//     #[test]
-//     fn it_works() {
-//         let result = add(2, 2);
-//         assert_eq!(result, 4);
-//     }
-// }
 use std::thread::{self, JoinHandle};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-enum DetectorError {
+pub enum DetectorError {
     #[error("An error occurred: {0}")]
     SomeError(String),
 }
 
-fn detector() -> JoinHandle<Result<(), DetectorError>> {
+pub fn detector() -> JoinHandle<Result<(), DetectorError>> {
+    unsafe {
+        let mut res: u32 = 0;
+        init();
+        enumerate_devices((&mut res) as *mut u32);
+        println!("{}", res);
+        final_();
+    }
     thread::spawn(|| Ok(()))
 }

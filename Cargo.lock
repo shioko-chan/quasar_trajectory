@@ -432,6 +432,9 @@ dependencies = [
 [[package]]
 name = "quasar_trajectory"
 version = "0.1.0"
+dependencies = [
+ "detector",
+]
 
 [[package]]
 name = "quote"
