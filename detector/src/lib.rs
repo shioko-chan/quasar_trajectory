@@ -4,7 +4,6 @@ include!(concat!(env!("OUT_DIR"), "/hikcamera/camera.rs"));
 #[cfg(feature = "mindvision")]
 include!(concat!(env!("OUT_DIR"), "hikcamera/camera.rs"));
 
-use config::CONFIG;
 use std::thread::{self, JoinHandle};
 use thiserror::Error;
 

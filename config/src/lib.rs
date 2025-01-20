@@ -74,9 +74,9 @@ pub fn load_config() {
     3. 将config.toml放置到命令行中的当前目录（pwd）",
     );
     let mut config_str = String::new();
-    config.read_to_string(&mut config_str).expect(
-        format!(
-            "读取指定的config.toml失败，指定的文件编码包含非合法utf-8字节。
+    config.read_to_string(&mut config_str).unwrap_or_else(|_| {
+        panic!(
+            "读取指定的config.toml失败，指定的文件编码包含非合法UTF-8的字节。
 config.toml的读取路径为：{}，若此路径与你实际指定的路径不符，请详细阅读下方说明。
 Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级依次排序：
     1. 环境变量QUASAR_CONFIG_PATH所指向的路径
@@ -84,18 +84,14 @@ Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级
     3. 命令行执行命令的当前目录（pwd）",
             config_path.display()
         )
-        .as_str(),
-    );
+    });
     let mut config_lock = CONFIG.write().expect("获取全局config的写锁失败");
-    *config_lock = Some(
-        toml::from_str(&config_str).expect(
-            format!(
-                "指定的配置文件“{}”解析失败，请检查此文件的内容是否正确",
-                config_path.display()
-            )
-            .as_str(),
-        ),
-    );
+    *config_lock = Some(toml::from_str(&config_str).unwrap_or_else(|_| {
+        panic!(
+            "指定的配置文件“{}”解析失败，请检查此文件的内容是否正确",
+            config_path.display()
+        )
+    }));
 }
 
 pub fn save_config() {
@@ -110,15 +106,10 @@ pub fn save_config() {
     3. 将config.toml放置到命令行中的当前目录（pwd）",
     );
 
-    std::fs::write(&config_path, config).expect(
-        format!(
-        "config.toml写入失败，写入路径为：{}，若此路径与你实际指定的路径不符，请详细阅读下方说明。
+    std::fs::write(&config_path, config).unwrap_or_else(|_| panic!("config.toml写入失败，写入路径为：{}，若此路径与你实际指定的路径不符，请详细阅读下方说明。
     Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级依次排序：
     1. 环境变量QUASAR_CONFIG_PATH所指向的路径
     2. 项目根目录
     3. 命令行执行命令的当前目录（pwd）",
-        config_path.display()
-    )
-        .as_str(),
-    );
+        config_path.display()));
 }
