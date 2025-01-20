@@ -32,8 +32,8 @@ fn main() {
         };
         // 使用 bindgen 生成 Rust 的 C API binding
         let bindings = bindgen::Builder::default()
-            .header(format!("camera/{name}/lib.h"))
-            .clang_arg(format!("-I{}", include.display()))
+            .header(format!("camera/{name}/bindgen.h"))
+            // .clang_arg(format!("-I{}", include.display()))
             .generate_comments(true)
             .generate()
             .expect("生成相机的 C API binding 时出错！");

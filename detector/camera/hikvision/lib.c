@@ -30,7 +30,7 @@ api_error uninitialize_camera()
     api_error ret = {false, MV_OK};
     if (API_STATE.device_list.nDeviceNum > 0)
     {
-        for (int i = 0; i < API_STATE.device_list.nDeviceNum; i++)
+        for (unsigned int i = 0; i < API_STATE.device_list.nDeviceNum; i++)
         {
             check_hik_err(&ret, MV_CC_CloseDevice(API_STATE.cam_handle_list[i]));
             check_hik_err(&ret, MV_CC_DestroyHandle(API_STATE.cam_handle_list[i]));
@@ -47,7 +47,7 @@ api_error init()
     api_error ret = {false, MV_OK};
     if (API_STATE.sdk_initialized)
     {
-        ret.code = API_ALREADY_INITIALIZED;
+        ret.code = CAMERA_API_ALREADY_INITIALIZED;
         return ret;
     }
     if (check_hik_err(&ret, MV_CC_Initialize()))
@@ -61,7 +61,7 @@ api_error final()
 {
     if (!API_STATE.sdk_initialized)
     {
-        api_error ret = {false, API_NOT_INITIALIZED};
+        api_error ret = {false, CAMERA_API_NOT_INITIALIZED};
         return ret;
     }
 
@@ -82,7 +82,7 @@ api_error enumerate_devices(unsigned int *device_num)
 {
     if (!API_STATE.sdk_initialized)
     {
-        api_error ret = {false, API_NOT_INITIALIZED};
+        api_error ret = {false, CAMERA_API_NOT_INITIALIZED};
         return ret;
     }
 
@@ -118,3 +118,46 @@ api_error enumerate_devices(unsigned int *device_num)
     *device_num = API_STATE.device_list.nDeviceNum;
     return ret;
 }
+
+// api_error get_frame(int cam_idx)
+// {
+//     api_error ret = {false, MV_OK};
+//     if (!API_STATE.sdk_initialized)
+//     {
+//         ret.code = CAMERA_API_NOT_INITIALIZED;
+//         return ret;
+//     }
+//     if (API_STATE.device_list.nDeviceNum <= cam_idx)
+//     {
+//         ret.code = CAMERA_API_CAMERA_NOT_FOUND;
+//         return ret;
+//     }
+//     if (!check_hik_err(&ret, MV_CC_StartGrabImage(API_STATE.cam_handle_list[cam_idx])))
+//     {
+//         return ret;
+//     }
+
+//     MV_FRAME_OUT_INFO_EX stImageInfo = {0};
+//     memset(&stImageInfo, 0, sizeof(MV_FRAME_OUT_INFO_EX));
+//     unsigned int nDataSize = 0;
+//     unsigned char *pData = (unsigned char *)malloc(stImageInfo.nFrameLen);
+//     if (check_hik_err(&ret, MV_CC_GetOneFrameTimeout(API_STATE.cam_handle_list[i], pData, stImageInfo.nFrameLen, &stImageInfo, 1000)))
+//     {
+//         free(pData);
+//         continue;
+//     }
+//     if (stImageInfo.enPixelType == PixelType_Gvsp_RGB8_Packed)
+//     {
+//         // 处理RGB8数据
+//     }
+//     else if (stImageInfo.enPixelType == PixelType_Gvsp_Mono8)
+//     {
+//         // 处理Mono8数据
+//     }
+//     free(pData);
+//     if (check_hik_err(&ret, MV_CC_StopGrabbing(API_STATE.cam_handle_list[i])))
+//     {
+//         continue;
+//     }
+//     return ret;
+// }
