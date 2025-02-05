@@ -5,7 +5,7 @@ fn main() {
         let lib = PathBuf::from(env::var("MVCAM_COMMON_RUNENV")
         .expect("未设置环境变量 MVCAM_COMMON_RUNENV，该环境变量应当指向海康威视的相机驱动下的lib目录，一般情况下目录位置位于/opt/MVS/lib")).join("aarch64");
         //  海康include目录
-        let include = PathBuf::from(env::var("MVCAM_SDK_PATH").expect("未设置环境变量 MVCAM_SDK_PATH，该环境变量应当指向海康威视的相机驱动目录，一般情况下目录位置位于/opt/MVS")).join("include");
+        let include = PathBuf::from(env::var("MVCAM_SDK_PATH").expect("未设置环境变量 MVCAM_SDK_PATH，该环境变量应当指向海康威视的相机驱动目录，一般情况下目录位置位于`/opt/MVS`")).join("include");
 
         // 源代码变更检测，告知编译器在下述路径的源代码发生变更时重新编译
         println!("cargo:rerun-if-changed=camera/hikvision");
@@ -19,7 +19,7 @@ fn main() {
 
         // C Compiler 编译海康威视相机驱动的C API
         cc::Build::new()
-            .file("camera/hikvision/lib.c")
+            .file("camera/hikvision/api.c")
             .include(&include)
             .compile("hikcamera");
 
@@ -32,7 +32,7 @@ fn main() {
         };
         // 使用 bindgen 生成 Rust 的 C API binding
         let bindings = bindgen::Builder::default()
-            .header(format!("camera/{name}/bindgen.h"))
+            .header(format!("camera/{name}/api.h"))
             // .clang_arg(format!("-I{}", include.display()))
             .generate_comments(true)
             .generate()
@@ -45,6 +45,7 @@ fn main() {
             .expect("写入相机的 C API binding 时出错！");
     } else if cfg!(feature = "mindvision") {
         // TO DO
+
         // 源代码变更检测
         println!("cargo:rerun-if-changed=camera/hikvision");
     } else {

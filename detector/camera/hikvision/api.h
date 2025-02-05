@@ -1,5 +1,5 @@
 /**
- * @file bindgen.h
+ * @file api.h
  * @brief 为海康威视USB工业相机编写的相机控制API的函数声明
  *
  * @details
@@ -40,8 +40,10 @@ api_error final();
 
 /**
  *  @brief  枚举设备，刷新设备列表
- *  @param  device_num  [IN]    该无符号整型指针返回发现的工业相机的数量
+ *  @param  device_num  [OUT]    该无符号整型指针返回发现的工业相机的数量
  *  @return 成功，返回api_error{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回api_error
  *  @remarks 设备列表的内存是在SDK内部存储的，每次调用该接口都会进行设备列表的刷新，过程中会进行设备列表内存的释放和申请，建议尽量避免多次枚举操作
  *  @remarks 本SDK仅仅考虑USB工业相机，若使用网口相机或其他类型工业相机，请修改此API，建议参考 /opt/MVS/doc 路径下的海康威视开发文档*/
 api_error enumerate_devices(unsigned int *device_num);
+
+api_error get_frame(unsigned int cam_idx);

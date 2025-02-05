@@ -1,5 +1,6 @@
 [camera]
 exposure_time = 1
+gain = 100
 
 [detect]
 

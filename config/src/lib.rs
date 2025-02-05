@@ -86,10 +86,11 @@ Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级
         )
     });
     let mut config_lock = CONFIG.write().expect("获取全局config的写锁失败");
-    *config_lock = Some(toml::from_str(&config_str).unwrap_or_else(|_| {
+    *config_lock = Some(toml::from_str(&config_str).unwrap_or_else(|err| {
         panic!(
-            "指定的配置文件“{}”解析失败，请检查此文件的内容是否正确",
-            config_path.display()
+            "指定的配置文件“{}”解析失败: {}，请检查此文件的内容是否正确",
+            config_path.display(),
+            err
         )
     }));
 }

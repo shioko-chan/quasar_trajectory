@@ -13,8 +13,9 @@ thiserror = "2.0.11"
 criterion = "0.5.1"
 bindgen = "0.71.1"
 libc = "0.2.169"
-cc = "1.2.10"
+cc = "1.2.12"
 
 [dependencies]
 detector = { path = "detector" }
 config = { path = "config" }
+ctrlc = "3.4.5"
