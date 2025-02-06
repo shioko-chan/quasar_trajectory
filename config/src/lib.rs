@@ -1,8 +1,8 @@
-use std::{fs::File, io::Read, path::PathBuf, sync::RwLock};
+use std::{fs::File, io::Read, path::PathBuf, sync::Mutex};
 
 use serde::{Deserialize, Serialize};
 
-pub static CONFIG: RwLock<Option<Config>> = RwLock::new(None);
+pub static CONFIG: Mutex<Option<Config>> = Mutex::new(None);
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
@@ -14,8 +14,8 @@ pub struct Config {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Camera {
-    exposure_time: u64,
-    gain: u64,
+    pub exposure_time: f32,
+    pub gain: u64,
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Detect {}
@@ -85,7 +85,7 @@ Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级
             config_path.display()
         )
     });
-    let mut config_lock = CONFIG.write().expect("获取全局config的写锁失败");
+    let mut config_lock = CONFIG.lock().expect("获取全局config的写锁失败");
     *config_lock = Some(toml::from_str(&config_str).unwrap_or_else(|err| {
         panic!(
             "指定的配置文件“{}”解析失败: {}，请检查此文件的内容是否正确",
@@ -96,7 +96,7 @@ Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级
 }
 
 pub fn save_config() {
-    let config_lock = CONFIG.read().expect("获取全局config的读锁失败");
+    let config_lock = CONFIG.lock().expect("获取全局config的读锁失败");
     let config = toml::to_string(config_lock.as_ref().expect("全局config未初始化"))
         .expect("序列化全局config失败");
 

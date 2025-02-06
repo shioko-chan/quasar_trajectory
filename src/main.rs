@@ -3,8 +3,12 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+use log::{debug, error, info, warn};
+
 fn main() {
     config::load_config();
+    env_logger::init();
+
     let stop_signal = Arc::new(AtomicBool::new(false));
 
     ctrlc::set_handler({

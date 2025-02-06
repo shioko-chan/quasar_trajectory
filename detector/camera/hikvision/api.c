@@ -154,20 +154,57 @@ error:
 
 api_error get_frame(unsigned int cam_idx, unsigned char *mem)
 {
+    api_error ret = {false, MV_OK};
+    if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 1000)))
+    {
+        return ret;
+    }
+    // printf("Get Image Buffer: Width[%d], Height[%d], FrameNum[%d]\n",
+    //        API_STATE.cam_list[cam_idx].frame.stFrameInfo.nWidth, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nHeight, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameNum);
+    // memcpy(mem, API_STATE.cam_list[cam_idx].frame.pBufAddr, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameLen);
+    // printf("FrameLen[%d]", API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameLen);
+    check_hik_err(&ret, MV_CC_FreeImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame));
+    return ret;
+}
+
+api_error set_float_param(unsigned int cam_idx, const char *param_name, float value)
+{
+    MVCC_FLOATVALUE stFloatValue = {0};
+    MV_CC_GetFloatValue(API_STATE.cam_list[cam_idx].handle, param_name, &stFloatValue);
+    printf("GetFloatValue: %f %f %f\n", stFloatValue.fCurValue, stFloatValue.fMax, stFloatValue.fMin);
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
         api_error ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
         return ret;
     }
     api_error ret = {false, MV_OK};
-    MV_FRAME_OUT frame = {0};
-    if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 100)))
+    check_hik_err(&ret, MV_CC_SetFloatValue(API_STATE.cam_list[cam_idx].handle, param_name, value));
+
+    MV_CC_GetFloatValue(API_STATE.cam_list[cam_idx].handle, param_name, &stFloatValue);
+    printf("GetFloatValue: %f %f %f\n", stFloatValue.fCurValue, stFloatValue.fMax, stFloatValue.fMin);
+    return ret;
+}
+
+api_error set_int_param(unsigned int cam_idx, const char *param_name, unsigned int value)
+{
+    if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
+        api_error ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
         return ret;
     }
-    // printf("Get Image Buffer: Width[%d], Height[%d], FrameNum[%d]\n",
-    //        API_STATE.cam_list[cam_idx].frame.stFrameInfo.nWidth, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nHeight, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameNum);
-    memcpy(mem, API_STATE.cam_list[cam_idx].frame.pBufAddr, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameLen);
-    check_hik_err(&ret, MV_CC_FreeImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame));
+    api_error ret = {false, MV_OK};
+    check_hik_err(&ret, MV_CC_SetIntValue(API_STATE.cam_list[cam_idx].handle, param_name, value));
+    return ret;
+}
+
+api_error set_enum_param(unsigned int cam_idx, const char *param_name, unsigned int value)
+{
+    if (API_STATE.device_list.nDeviceNum <= cam_idx)
+    {
+        api_error ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
+        return ret;
+    }
+    api_error ret = {false, MV_OK};
+    check_hik_err(&ret, MV_CC_SetEnumValue(API_STATE.cam_list[cam_idx].handle, param_name, value));
     return ret;
 }

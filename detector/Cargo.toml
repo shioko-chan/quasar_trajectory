@@ -7,12 +7,13 @@ edition = "2021"
 config = { path = "../config" }
 thiserror = { workspace = true }
 libc = { workspace = true }
+log = { workspace = true }
 
 [build-dependencies]
 bindgen = { workspace = true }
 cc = { workspace = true }
 
 [features]
-default = ["hikvision"]
 mindvision = []
 hikvision = []
+visualize = []

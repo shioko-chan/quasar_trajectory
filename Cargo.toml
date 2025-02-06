@@ -14,8 +14,17 @@ criterion = "0.5.1"
 bindgen = "0.71.1"
 libc = "0.2.169"
 cc = "1.2.12"
+log = "0.4.25"
 
 [dependencies]
 detector = { path = "detector" }
 config = { path = "config" }
+log = { workspace = true }
+env_logger = "0.11.6"
 ctrlc = "3.4.5"
+
+[features]
+default = ["visualize", "hikvision"]
+visualize = ["detector/visualize"]
+hikvision = ["detector/hikvision"]
+mindvision = ["detector/mindvision"]
