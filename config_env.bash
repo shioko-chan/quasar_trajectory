@@ -12,7 +12,7 @@ export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-cat > ~/.cargo/config.toml <<EOF
+cat > ~/.cargo/config.toml <<'EOF'
 [source.crates-io]
 replace-with = "ustc"
 
@@ -20,7 +20,10 @@ replace-with = "ustc"
 registry = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
 EOF
 
-cat >> ~/.bashrc <<EOF
+cat >> ~/.bashrc <<'EOF'
 export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
 export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
 
+EOF
+
+source ~/.bashrc
