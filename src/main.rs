@@ -19,5 +19,7 @@ fn main() {
     })
     .expect("Error setting Ctrl-C handler");
     let handle = detector::detector(stop_signal.clone());
-    handle.join().iter().all(|res| res.is_ok());
+    handle.join().unwrap().unwrap_or_else(|err| {
+        error!("检测器异常退出: {}", err);
+    });
 }

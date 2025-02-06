@@ -22,33 +22,57 @@ pub enum DetectorError {
     CameraError(String),
 }
 
+fn stringify_err(ret: api_error) -> String {
+    format!(
+        "错误来源：{}， 错误码：{:X}",
+        if ret.is_hik_err == 1 {
+            "`第三方相机SDK`"
+        } else {
+            "`相机API`"
+        },
+        ret.code as usize
+    )
+}
+
+fn init_sdk() -> Result<(), DetectorError> {
+    let ret;
+    unsafe {
+        ret = init();
+    }
+    if ret.code != 0 {
+        return Err(DetectorError::CameraError(format!(
+            "相机初始化失败；{}",
+            stringify_err(ret)
+        )));
+    }
+    Ok(())
+}
+
+fn init_cameras() -> Result<(), DetectorError> {
+    let mut res: u32 = 0;
+    let ret;
+    unsafe {
+        ret = enumerate_devices(&mut res as *mut u32);
+    }
+    if ret.code != 0 {
+        return Err(DetectorError::CameraError(format!(
+            "枚举设备失败: {}",
+            stringify_err(ret)
+        )));
+    }
+    if res == 0 {
+        return Err(DetectorError::CameraError("未发现设备".to_string()));
+    }
+    info!("发现相机数量: {}", res);
+    Ok(())
+}
+
 pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorError>> {
     thread::spawn(move || {
-        let mut res: u32 = 0;
-        let mut ret;
-        unsafe {
-            ret = init();
-        }
-        if ret.code != 0 {
-            return Err(DetectorError::CameraError(format!(
-                "相机初始化失败: {:?}",
-                ret
-            )));
-        }
-        unsafe {
-            ret = enumerate_devices(&mut res as *mut u32);
-        }
-        if ret.code != 0 {
-            return Err(DetectorError::CameraError(format!(
-                "枚举设备失败: {:?}",
-                ret
-            )));
-        }
-        if res == 0 {
-            return Err(DetectorError::CameraError("No device found".to_string()));
-        }
-        info!("检测器已启动, 相机数量: {}", res);
-        const cam_id: u32 = 0;
+        init_sdk()?;
+        init_cameras()?;
+
+        const CAM_ID: u32 = 0;
         let exposure_time = CONFIG
             .lock()
             .expect("锁中毒")
@@ -56,27 +80,30 @@ pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorErr
             .expect("CONFIG未初始化")
             .camera
             .exposure_time;
-
+        let mut ret;
         unsafe {
-            ret = set_enum_param(cam_id, CString::new("ExposureAuto").unwrap().as_ptr(), 0);
+            ret = set_enum_param(CAM_ID, CString::new("ExposureAuto").unwrap().as_ptr(), 0);
         }
         if ret.code != 0 {
             return Err(DetectorError::CameraError(format!(
-                "设置曝光模式失败: {:?}",
-                ret
+                "设置曝光模式失败: {}",
+                stringify_err(ret)
             )));
         }
         unsafe {
+            set_enum_param(CAM_ID, CString::new("ExposureMode").unwrap().as_ptr(), 0);
+        }
+        unsafe {
             ret = set_float_param(
-                cam_id,
+                CAM_ID,
                 CString::new("ExposureTime").unwrap().as_ptr(),
                 exposure_time,
             );
         }
         if ret.code != 0 {
             return Err(DetectorError::CameraError(format!(
-                "设置曝光时间失败: {:?}",
-                ret
+                "设置曝光时间失败: {}",
+                stringify_err(ret)
             )));
         }
         #[cfg(feature = "visualize")]
@@ -86,13 +113,17 @@ pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorErr
             let mut img = vec![0u8; 1440 * 1080 * 3];
             while !terminate.load(atomic::Ordering::Relaxed) {
                 unsafe {
-                    ret = get_frame(cam_id, img.as_mut_ptr());
+                    ret = get_frame(CAM_ID);
                 }
+
+                // if ret.code != 0 {
+                //     return Err(DetectorError::CameraError(format!(
+                //         "获取图像失败: {}",
+                //         stringify_err(ret)
+                //     )));
+                // }
                 if ret.code != 0 {
-                    return Err(DetectorError::CameraError(format!(
-                        "获取图像失败: {:?}",
-                        ret
-                    )));
+                    continue;
                 }
                 cnt += 1;
                 if cnt == 100 {

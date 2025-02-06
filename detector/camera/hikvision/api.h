@@ -53,7 +53,7 @@ api_error enumerate_devices(unsigned int *device_num);
  * @return 成功，返回api_error{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回api_error
  * @remarks 该函数会将获取到的图像帧存储在mem指向的内存中，mem的大小应该足够存储一帧图像，否则会发生越界访问
  */
-api_error get_frame(unsigned int cam_idx, unsigned char *mem);
+api_error get_frame(unsigned int cam_idx);
 
 api_error set_enum_param(unsigned int cam_idx, const char *param_name, unsigned int value);
 

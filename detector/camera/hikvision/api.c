@@ -152,10 +152,10 @@ error:
     return ret;
 }
 
-api_error get_frame(unsigned int cam_idx, unsigned char *mem)
+api_error get_frame(unsigned int cam_idx)
 {
     api_error ret = {false, MV_OK};
-    if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 1000)))
+    if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 10)))
     {
         return ret;
     }
