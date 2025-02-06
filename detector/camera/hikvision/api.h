@@ -53,10 +53,37 @@ api_error enumerate_devices(unsigned int *device_num);
  * @return 成功，返回api_error{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回api_error
  * @remarks 该函数会将获取到的图像帧存储在mem指向的内存中，mem的大小应该足够存储一帧图像，否则会发生越界访问
  */
-api_error get_frame(unsigned int cam_idx);
+api_error get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffer_size);
 
+/**
+ * @brief 设置相机枚举参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [IN] 参数值
+ * @return 成功，返回api_error{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回api_error
+ * @remarks 该函数用于设置相机的枚举类型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
 api_error set_enum_param(unsigned int cam_idx, const char *param_name, unsigned int value);
 
+/**
+ * @brief 设置相机整型参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [IN] 参数值
+ * @return 成功，返回api_error{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回api_error
+ * @remarks 该函数用于设置相机的整型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
 api_error set_int_param(unsigned int cam_idx, const char *param_name, unsigned int value);
 
+/**
+ * @brief 设置相机浮点型参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [IN] 参数值
+ * @return 成功，返回api_error{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回api_error
+ * @remarks 该函数用于设置相机的浮点型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
 api_error set_float_param(unsigned int cam_idx, const char *param_name, float value);

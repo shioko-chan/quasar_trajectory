@@ -6,6 +6,7 @@ include!(concat!(env!("OUT_DIR"), "hikcamera/camera.rs"));
 
 use config::CONFIG;
 use log::info;
+use messages::{new_tube, TubeRecv, TubeSend};
 use std::ffi::CString;
 use std::{
     sync::{
@@ -67,7 +68,10 @@ fn init_cameras() -> Result<(), DetectorError> {
     Ok(())
 }
 
-pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorError>> {
+fn camera_launch(
+    sender: TubeSend<Vec<u8>>,
+    terminate: Arc<AtomicBool>,
+) -> JoinHandle<Result<(), DetectorError>> {
     thread::spawn(move || {
         init_sdk()?;
         init_cameras()?;
@@ -91,7 +95,7 @@ pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorErr
             )));
         }
         unsafe {
-            set_enum_param(CAM_ID, CString::new("ExposureMode").unwrap().as_ptr(), 0);
+            set_enum_param(CAM_ID, CString::new("GainAuto").unwrap().as_ptr(), 2);
         }
         unsafe {
             ret = set_float_param(
@@ -113,15 +117,8 @@ pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorErr
             let mut img = vec![0u8; 1440 * 1080 * 3];
             while !terminate.load(atomic::Ordering::Relaxed) {
                 unsafe {
-                    ret = get_frame(CAM_ID);
+                    ret = get_frame(CAM_ID, img.as_mut_ptr(), img.len() as u32);
                 }
-
-                // if ret.code != 0 {
-                //     return Err(DetectorError::CameraError(format!(
-                //         "获取图像失败: {}",
-                //         stringify_err(ret)
-                //     )));
-                // }
                 if ret.code != 0 {
                     continue;
                 }
@@ -145,7 +142,12 @@ pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorErr
         unsafe {
             final_();
         }
-        info!("检测器已退出");
+        info!("已关闭相机线程");
         Ok(())
     })
+}
+
+pub fn detector(terminate: Arc<AtomicBool>) -> JoinHandle<Result<(), DetectorError>> {
+    let (tx, rx) = new_tube();
+    camera_launch(tx, terminate.clone())
 }

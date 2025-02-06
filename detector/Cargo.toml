@@ -4,10 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+messages = { path = "../messages" }
 config = { path = "../config" }
 thiserror = { workspace = true }
 libc = { workspace = true }
 log = { workspace = true }
+tungstenite = { optional = true, workspace = true }
 
 [build-dependencies]
 bindgen = { workspace = true }
@@ -16,4 +18,4 @@ cc = { workspace = true }
 [features]
 mindvision = []
 hikvision = []
-visualize = []
+visualize = ["tungstenite"]

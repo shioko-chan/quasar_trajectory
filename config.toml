@@ -1,6 +1,6 @@
 [camera]
-exposure_time = 15.0 # us
-gain = 100
+exposure_time = 100.0 # us
+gain = 10
 
 [detect]
 

@@ -15,6 +15,7 @@ bindgen = "0.71.1"
 libc = "0.2.169"
 cc = "1.2.12"
 log = "0.4.25"
+tungstenite = "0.17"
 
 [dependencies]
 detector = { path = "detector" }

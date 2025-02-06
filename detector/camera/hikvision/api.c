@@ -152,17 +152,27 @@ error:
     return ret;
 }
 
-api_error get_frame(unsigned int cam_idx)
+api_error get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffer_size)
 {
     api_error ret = {false, MV_OK};
     if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 10)))
     {
         return ret;
     }
-    // printf("Get Image Buffer: Width[%d], Height[%d], FrameNum[%d]\n",
-    //        API_STATE.cam_list[cam_idx].frame.stFrameInfo.nWidth, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nHeight, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameNum);
-    // memcpy(mem, API_STATE.cam_list[cam_idx].frame.pBufAddr, API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameLen);
-    // printf("FrameLen[%d]", API_STATE.cam_list[cam_idx].frame.stFrameInfo.nFrameLen);
+
+    MV_CC_PIXEL_CONVERT_PARAM_EX param = {0};
+    MV_FRAME_OUT *frame = &API_STATE.cam_list[cam_idx].frame;
+    param.nWidth = frame->stFrameInfo.nWidth;
+    param.nHeight = frame->stFrameInfo.nHeight;
+    param.pSrcData = frame->pBufAddr;
+    param.nSrcDataLen = frame->stFrameInfo.nFrameLenEx;
+
+    param.enSrcPixelType = frame->stFrameInfo.enPixelType;
+    param.enDstPixelType = PixelType_Gvsp_RGB8_Packed;
+    param.pDstBuffer = mem;
+    param.nDstBufferSize = buffer_size;
+    check_hik_err(&ret, MV_CC_ConvertPixelTypeEx(API_STATE.cam_list[cam_idx].handle, &param));
+
     check_hik_err(&ret, MV_CC_FreeImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame));
     return ret;
 }
