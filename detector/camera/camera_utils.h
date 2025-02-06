@@ -14,14 +14,14 @@
 
 /**
  * @brief API调用状态，
- * @param is_hik_err 该字段指示是否是海康威视的错误码
+ * @param is_thirdparty_err 该字段指示是否是来自第三方相机SDK的错误码
  * @param code 该字段指示错误码的值
  * @remarks 海康威视的错误码定义参考MvErrorDefine.h，自定义错误码参照上述宏定义
  */
 typedef struct
 {
-    char is_hik_err;
+    char is_thirdparty_err;
     int code;
-} api_error;
+} APIError;
 
 #endif

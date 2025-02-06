@@ -24,20 +24,20 @@ static struct
     MV_CC_DEVICE_INFO_LIST device_list;
 } API_STATE = {0};
 
-inline static bool check_hik_err(api_error *ret, int err)
+inline static bool check_hik_err(APIError *ret, int err)
 {
     if (err != MV_OK)
     {
-        ret->is_hik_err = true;
+        ret->is_thirdparty_err = true;
         ret->code = err;
         return false;
     }
     return true;
 }
 
-api_error uninitialize_camera()
+APIError uninitialize_camera()
 {
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     if (API_STATE.cam_list != NULL)
     {
         for (unsigned int i = 0; i < API_STATE.device_list.nDeviceNum; i++)
@@ -53,9 +53,9 @@ api_error uninitialize_camera()
     return ret;
 }
 
-api_error init()
+APIError init()
 {
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     if (API_STATE.sdk_initialized)
     {
         ret.code = CAMERA_API_ALREADY_INITIALIZED;
@@ -68,15 +68,15 @@ api_error init()
     return ret;
 }
 
-api_error final()
+APIError final()
 {
     if (!API_STATE.sdk_initialized)
     {
-        api_error ret = {false, CAMERA_API_NOT_INITIALIZED};
+        APIError ret = {false, CAMERA_API_NOT_INITIALIZED};
         return ret;
     }
 
-    api_error ret = uninitialize_camera();
+    APIError ret = uninitialize_camera();
     if (ret.code != MV_OK)
     {
         return ret;
@@ -89,15 +89,15 @@ api_error final()
     return ret;
 }
 
-api_error enumerate_devices(unsigned int *device_num)
+APIError enumerate_devices(unsigned int *device_num)
 {
     if (!API_STATE.sdk_initialized)
     {
-        api_error ret = {false, CAMERA_API_NOT_INITIALIZED};
+        APIError ret = {false, CAMERA_API_NOT_INITIALIZED};
         return ret;
     }
 
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     if (API_STATE.device_list.nDeviceNum > 0)
     {
         ret = uninitialize_camera();
@@ -152,9 +152,9 @@ error:
     return ret;
 }
 
-api_error get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffer_size)
+APIError get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffer_size)
 {
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 10)))
     {
         return ret;
@@ -177,17 +177,17 @@ api_error get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffe
     return ret;
 }
 
-api_error set_float_param(unsigned int cam_idx, const char *param_name, float value)
+APIError set_float_param(unsigned int cam_idx, const char *param_name, float value)
 {
     MVCC_FLOATVALUE stFloatValue = {0};
     MV_CC_GetFloatValue(API_STATE.cam_list[cam_idx].handle, param_name, &stFloatValue);
     printf("GetFloatValue: %f %f %f\n", stFloatValue.fCurValue, stFloatValue.fMax, stFloatValue.fMin);
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
-        api_error ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
+        APIError ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
         return ret;
     }
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     check_hik_err(&ret, MV_CC_SetFloatValue(API_STATE.cam_list[cam_idx].handle, param_name, value));
 
     MV_CC_GetFloatValue(API_STATE.cam_list[cam_idx].handle, param_name, &stFloatValue);
@@ -195,26 +195,26 @@ api_error set_float_param(unsigned int cam_idx, const char *param_name, float va
     return ret;
 }
 
-api_error set_int_param(unsigned int cam_idx, const char *param_name, unsigned int value)
+APIError set_int_param(unsigned int cam_idx, const char *param_name, unsigned int value)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
-        api_error ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
+        APIError ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
         return ret;
     }
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     check_hik_err(&ret, MV_CC_SetIntValue(API_STATE.cam_list[cam_idx].handle, param_name, value));
     return ret;
 }
 
-api_error set_enum_param(unsigned int cam_idx, const char *param_name, unsigned int value)
+APIError set_enum_param(unsigned int cam_idx, const char *param_name, unsigned int value)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
-        api_error ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
+        APIError ret = {true, CAMERA_API_INVALID_DEVICE_INDEX};
         return ret;
     }
-    api_error ret = {false, MV_OK};
+    APIError ret = {false, MV_OK};
     check_hik_err(&ret, MV_CC_SetEnumValue(API_STATE.cam_list[cam_idx].handle, param_name, value));
     return ret;
 }

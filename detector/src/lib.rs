@@ -23,10 +23,10 @@ pub enum DetectorError {
     CameraError(String),
 }
 
-fn stringify_err(ret: api_error) -> String {
+fn stringify_err(ret: APIError) -> String {
     format!(
         "错误来源：{}， 错误码：{:X}",
-        if ret.is_hik_err == 1 {
+        if ret.is_thirdparty_err == 1 {
             "`第三方相机SDK`"
         } else {
             "`相机API`"
