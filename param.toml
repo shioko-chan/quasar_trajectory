@@ -1,0 +1,16 @@
+[camera]
+# 如果设置了自动，下方的手动设置将被忽略
+exposure_auto = false
+gain_auto = true
+
+exposure_time = 1000.0 # us(微秒)
+gain = 10.0            # dB(分贝)
+
+width = 1440  # 图像宽度
+height = 1080 # 图像高度
+
+[detect]
+
+[track]
+
+[robot]

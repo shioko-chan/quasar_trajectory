@@ -155,7 +155,7 @@ error:
 APIError get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffer_size)
 {
     APIError ret = {false, MV_OK};
-    if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 10)))
+    if (!check_hik_err(&ret, MV_CC_GetImageBuffer(API_STATE.cam_list[cam_idx].handle, &API_STATE.cam_list[cam_idx].frame, 1000)))
     {
         return ret;
     }
@@ -168,7 +168,7 @@ APIError get_frame(unsigned int cam_idx, unsigned char *mem, unsigned int buffer
     param.nSrcDataLen = frame->stFrameInfo.nFrameLenEx;
 
     param.enSrcPixelType = frame->stFrameInfo.enPixelType;
-    param.enDstPixelType = PixelType_Gvsp_RGB8_Packed;
+    param.enDstPixelType = PixelType_Gvsp_BGR8_Packed;
     param.pDstBuffer = mem;
     param.nDstBufferSize = buffer_size;
     check_hik_err(&ret, MV_CC_ConvertPixelTypeEx(API_STATE.cam_list[cam_idx].handle, &param));

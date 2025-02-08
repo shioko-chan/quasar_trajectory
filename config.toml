@@ -1,9 +1,0 @@
-[camera]
-exposure_time = 100.0 # us
-gain = 10
-
-[detect]
-
-[track]
-
-[robot]

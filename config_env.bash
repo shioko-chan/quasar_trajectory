@@ -5,7 +5,7 @@ wget http://fishros.com/install -O fishros && . fishros
 sudo apt update
 sudo apt upgrade
 
-sudo apt install figlet fortune-mod lolcat curl 
+sudo apt install figlet fortune-mod lolcat curl libopencv-dev clang libclang-dev
 
 export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
 export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup

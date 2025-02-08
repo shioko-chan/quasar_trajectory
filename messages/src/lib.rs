@@ -1,20 +1,10 @@
 #[cfg(not(feature = "use_crossbeam"))]
 use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
 
-use std::collections::VecDeque;
-
+use anyhow::anyhow;
 #[cfg(feature = "use_crossbeam")]
 use crossbeam_channel::{unbounded as channel, Receiver, Sender, TryRecvError};
-
-use thiserror::Error;
-
-/// 表示管道可能的错误类型
-#[derive(Debug, Error, PartialEq)]
-pub enum TubeError {
-    /// 管道已经关闭，无法发送或接收数据
-    #[error("This tube has shut down.")]
-    TubeShutdown,
-}
+use std::collections::VecDeque;
 
 /// 管道的发送端结构
 /// 管理数据的发送缓冲区和发送逻辑
@@ -85,21 +75,23 @@ impl<T> TubeSend<T> {
     ///
     /// # 返回值
     /// - `Ok(())` 表示成功发送。
-    /// - `Err(TubeError::TubeShutdown)` 表示管道已关闭。
-    pub fn send(&mut self) -> Result<(), TubeError> {
+    /// - `Err(anyhow::Error)` 表示管道已关闭。
+    pub fn send(&mut self) -> Result<(), anyhow::Error> {
         // 如果缓冲区只剩一个数据，尝试从回收通道中获取空缓冲区
         // 保证发送端至少有一个缓冲区可用
         if self.dishes.len() == 1 {
             match self.recycle.try_recv() {
                 Ok(empty_dish) => self.dishes.push_back(empty_dish),
                 Err(TryRecvError::Empty) => return Ok(()), // 无可用缓冲区
-                Err(TryRecvError::Disconnected) => return Err(TubeError::TubeShutdown),
+                Err(TryRecvError::Disconnected) => {
+                    return Err(anyhow!("[messages] 管道已关闭，发送被阻止"))
+                }
             }
         }
         // 发送缓冲区中的第一个数据
         self.supply
             .send(self.dishes.pop_front().expect(TUBE_PANIC))
-            .map_err(|_| TubeError::TubeShutdown)
+            .map_err(|_| anyhow!("[messages] 管道已关闭，发送被阻止"))
     }
 }
 
@@ -108,9 +100,11 @@ impl<T> TubeRecv<T> {
     ///
     /// # 返回值
     /// - `Ok(Box<T>)` 表示成功接收到数据。
-    /// - `Err(TubeError::TubeShutdown)` 表示发送端已关闭。
-    pub fn recv(&self) -> Result<Box<T>, TubeError> {
-        self.fetch.recv().map_err(|_| TubeError::TubeShutdown)
+    /// - `Err(anyhow::Error)` 表示发送端已关闭。
+    pub fn recv(&self) -> Result<Box<T>, anyhow::Error> {
+        self.fetch
+            .recv()
+            .map_err(|_| anyhow!("[messages] 管道已关闭，接收被阻止"))
     }
 
     /// 回收空缓冲区，将其返还给发送端
@@ -120,11 +114,11 @@ impl<T> TubeRecv<T> {
     ///
     /// # 返回值
     /// - `Ok(())` 表示成功回收。
-    /// - `Err(TubeError::TubeShutdown)` 表示发送端已关闭。
-    pub fn recycle(&self, empty_dish: Box<T>) -> Result<(), TubeError> {
+    /// - `Err(anyhow::Error)` 表示发送端已关闭。
+    pub fn recycle(&self, empty_dish: Box<T>) -> Result<(), anyhow::Error> {
         self.refund
             .send(empty_dish)
-            .map_err(|_| TubeError::TubeShutdown)
+            .map_err(|_| anyhow!("[messages] 管道已关闭，回收被阻止"))
     }
 }
 
@@ -187,7 +181,10 @@ mod tests {
         drop(tube_recv);
 
         // 尝试发送数据
-        assert_eq!(tube_send.send(), Err(TubeError::TubeShutdown));
+        assert!(matches!(
+            tube_send.send(),
+            Err(e) if e.to_string() == "[messages] 管道已关闭，发送被阻止"
+        ));
     }
 
     #[test]
@@ -198,7 +195,10 @@ mod tests {
         drop(tube_send);
 
         // 尝试接收数据
-        assert_eq!(tube_recv.recv(), Err(TubeError::TubeShutdown));
+        assert!(matches!(
+            tube_recv.recv(),
+            Err(e) if e.to_string() == "[messages] 管道已关闭，接收被阻止"
+        ));
     }
 
     #[test]
@@ -215,6 +215,9 @@ mod tests {
 
         // 尝试回收缓冲区
         let empty_dish = recv_buffer.unwrap();
-        assert_eq!(tube_recv.recycle(empty_dish), Err(TubeError::TubeShutdown));
+        assert!(matches!(
+            tube_recv.recycle(empty_dish),
+            Err(e) if e.to_string() == "[messages] 管道已关闭，回收被阻止"
+        ));
     }
 }

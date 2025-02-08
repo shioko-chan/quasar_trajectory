@@ -5,17 +5,18 @@ edition = "2021"
 
 
 [workspace]
-members = ["config", "controller", "detector", "messages", "tracker"]
+members = ["config", "controller", "detector", "messages", "server", "tracker"]
 
 [workspace.dependencies]
-opencv = "0.94.1"
-thiserror = "2.0.11"
+opencv = { version = "0.94.2", features = ["clang-runtime"] }
+anyhow = "1.0.95"
 criterion = "0.5.1"
 bindgen = "0.71.1"
 libc = "0.2.169"
 cc = "1.2.12"
 log = "0.4.25"
-tungstenite = "0.17"
+rand = "0.9.0"
+crossbeam-channel = "0.5.14"
 
 [dependencies]
 detector = { path = "detector" }
@@ -24,8 +25,9 @@ log = { workspace = true }
 env_logger = "0.11.6"
 ctrlc = "3.4.5"
 
+
 [features]
-default = ["visualize", "hikvision"]
-visualize = ["detector/visualize"]
+default = ["gui", "hikvision"]
+gui = ["detector/gui"]
 hikvision = ["detector/hikvision"]
 mindvision = ["detector/mindvision"]
