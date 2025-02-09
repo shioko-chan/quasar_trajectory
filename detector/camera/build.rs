@@ -1,4 +1,7 @@
-use std::{env, fs, path::PathBuf};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
 fn main() {
     if cfg!(feature = "hikvision") {
         // 获取环境变量，获取海康威视相机驱动的lib目录
@@ -7,8 +10,9 @@ fn main() {
         //  海康include目录
         let include = PathBuf::from(env::var("MVCAM_SDK_PATH").expect("未设置环境变量 MVCAM_SDK_PATH，该环境变量应当指向海康威视的相机驱动目录，一般情况下目录位置位于`/opt/MVS`")).join("include");
 
+        let src_path = Path::new("src_c/hikvision");
         // 源代码变更检测，告知编译器在下述路径的源代码发生变更时重新编译
-        println!("cargo:rerun-if-changed=camera/hikvision");
+        println!("cargo:rerun-if-changed={}", src_path.display());
 
         // 通知链接器链接海康威视相机驱动
         println!("cargo:rustc-link-search=native={}", lib.display());
@@ -19,7 +23,7 @@ fn main() {
 
         // C Compiler 编译海康威视相机驱动的C API
         cc::Build::new()
-            .file("camera/hikvision/api.c")
+            .file(src_path.join("api.c"))
             .include(&include)
             .compile("hikcamera");
 

@@ -4,20 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-messages = { path = "../messages" }
+utility = { path = "../utility" }
 config = { path = "../config" }
 server = { path = "../server", optional = true }
+camera = { path = "camera" }
 anyhow = { workspace = true }
-libc = { workspace = true }
+# libc = { workspace = true }
 log = { workspace = true }
 opencv = { workspace = true }
 rand = { workspace = true }
 
-[build-dependencies]
-bindgen = { workspace = true }
-cc = { workspace = true }
-
 [features]
-mindvision = []
-hikvision = []
-gui = ["server"]
+mindvision = ["camera/mindvision"]
+hikvision = ["camera/hikvision"]
+gui = ["server", "config/gui"]

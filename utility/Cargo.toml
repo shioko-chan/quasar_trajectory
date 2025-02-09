@@ -1,11 +1,15 @@
 [package]
-name = "messages"
+name = "utility"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+log = { workspace = true }
 anyhow = { workspace = true }
-crossbeam-channel = { workspace = true, optional = true }
+crossbeam-channel = { workspace = true }
+rand = { workspace = true }
+
+# server = { workspace = true, optional = true }
 
 [dev-dependencies]
 criterion = { workspace = true }
@@ -15,5 +19,4 @@ name = "tube_benchmark"
 harness = false
 
 [features]
-default = ["use_crossbeam"]
-use_crossbeam = ["crossbeam-channel"]
+gui = []

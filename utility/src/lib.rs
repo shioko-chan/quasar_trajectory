@@ -1,10 +1,143 @@
-#[cfg(not(feature = "use_crossbeam"))]
-use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
-
-use anyhow::anyhow;
-#[cfg(feature = "use_crossbeam")]
+use anyhow::{anyhow, Result};
 use crossbeam_channel::{unbounded as channel, Receiver, Sender, TryRecvError};
-use std::collections::VecDeque;
+use log::debug;
+use rand::{rngs::ThreadRng, Rng};
+use std::{
+    collections::VecDeque,
+    sync::atomic::{AtomicBool, Ordering},
+    time::Instant,
+};
+
+pub struct FrameLimiter {
+    cnt: u8,
+    fps: f32,
+    start: Instant,
+    rng: ThreadRng,
+}
+
+impl FrameLimiter {
+    pub fn new() -> Self {
+        Self {
+            fps: 0.0,
+            start: Instant::now(),
+            cnt: 0,
+            rng: rand::rng(),
+        }
+    }
+
+    pub fn limit(&mut self) -> bool {
+        self.cnt += 1;
+        if self.cnt == 100 {
+            let fps = 100.0 / self.start.elapsed().as_secs_f32();
+            debug!("[] fps: {fps}");
+            self.start = Instant::now();
+            self.cnt = 0;
+        }
+        let probability = 30.0 / self.fps;
+        self.rng.random::<f32>() < probability
+    }
+}
+
+// pub struct ImageSender {
+//     rng: ThreadRng,
+//     cnt: u8,
+//     fps: f32,
+//     start: Instant,
+//     buffer: Vector<u8>,
+// }
+
+// impl ImageWs {
+//     pub fn new(terminate: Arc<AtomicBool>) -> Result<Self, anyhow::Error> {
+//         let stream = wait_connection(terminate.clone())?;
+//         return Ok(Self {
+//             ws: tungstenite::accept(stream).expect("[可视化] WebSocket 握手失败"),
+//             rng: rand::rng(),
+//             cnt: 0,
+//             fps: 0.0,
+//             start: Instant::now(),
+//             buffer: Vector::new(),
+//         });
+//     }
+// }
+
+// #[cfg(feature = "gui")]
+// {
+//     gui::ImageWs::new(terminate.clone())?;
+//     let size = (width * height * 3) as u32;
+//     let (mut rng, mut cnt, mut fps, mut start) = (rand::rng(), 0, 0.0, Instant::now());
+//     let mut mat = unsafe {
+//         Mat::new_rows_cols(height as i32, width as i32, CV_8UC3)
+//             .expect("[可视化] 无法创建Mat")
+//     };
+//     let server = TcpListener::bind("0.0.0.0:16700").expect("[可视化] 无法绑定端口 16700");
+//     server
+//         .set_nonblocking(true)
+//         .expect("[可视化] 无法设置TCP Server为非阻塞");
+//     while !terminate.load(atomic::Ordering::Relaxed) {
+//         if let Ok((stream, socket)) = server.accept() {
+//             info!("[可视化] 相机可视化已连接到: {:?}", socket);
+//             let mut websocket =
+//                 tungstenite::accept(stream).expect("[可视化] WebSocket 握手失败");
+//             while !terminate.load(atomic::Ordering::Relaxed) {
+//                 unsafe {
+//                     ret = get_frame(CAM_ID, mat.data_mut(), size);
+//                 }
+//                 if ret.code != 0 {
+//                     continue;
+//                 }
+//                 cnt += 1;
+//                 if cnt == 100 {
+//                     fps = 100.0 / start.elapsed().as_secs_f32();
+//                     info!("fps: {fps}");
+//                     start = Instant::now();
+//                     cnt = 0;
+//                 }
+//                 let probability = 30.0 / fps;
+//                 if rng.random::<f32>() < probability {
+//                     let mut buf = Vector::new();
+//                     cv::imgcodecs::imencode(".jpg", &mat, &mut buf, &Vector::new())
+//                         .expect("[可视化] 无法编码图像");
+//                     websocket
+//                         .write(tungstenite::Message::Binary(buf.to_vec().into()))
+//                         .expect("[可视化] Websocket 发送图片失败");
+//                 }
+//             }
+//         }
+//     }
+// }
+
+static STOP_SIG: AtomicBool = AtomicBool::new(false);
+
+/// 检测系统是否应当停止
+///
+/// # 返回值
+/// 如果已发出停止信号，返回 `true`，否则返回 `false`
+pub fn is_stopped() -> bool {
+    STOP_SIG.load(Ordering::Relaxed)
+}
+
+/// 发出停止信号，通知所有线程停止工作
+pub fn stop_all() {
+    STOP_SIG.store(true, Ordering::Relaxed);
+}
+
+pub use log::error;
+
+/// 确保条件为真，否则记录错误日志并发出停止信号
+///
+/// # 参数
+/// - `$cond`: 要检查的条件表达式
+/// - `$log`: 如果条件为假时记录的错误日志信息
+#[macro_export]
+macro_rules! ensure_or_stop {
+    ($cond:expr, $log:expr) => {
+        if !$cond {
+            $crate::error!("{}", $log);
+            $crate::stop_all();
+            return;
+        }
+    };
+}
 
 /// 管道的发送端结构
 /// 管理数据的发送缓冲区和发送逻辑
@@ -25,9 +158,6 @@ pub struct TubeRecv<T> {
     /// 用于回收缓冲区的发送端
     refund: Sender<Box<T>>,
 }
-
-/// 当管道结构出现逻辑错误时的 panic 信息
-const TUBE_PANIC: &str = "[Tube]: data structure collapsed";
 
 /// 创建一个管道（Tube），包括发送端和接收端
 ///
@@ -68,7 +198,7 @@ impl<T> TubeSend<T> {
     /// 返回缓冲区队列中的第一个元素。
     /// 如果队列为空，将触发 panic。
     pub fn get_send_buffer(&mut self) -> &mut Box<T> {
-        self.dishes.front_mut().expect(TUBE_PANIC)
+        self.dishes.front_mut().expect("[Tube] 数据结构逻辑错误")
     }
 
     /// 将缓冲区中的数据发送到接收端
@@ -84,14 +214,14 @@ impl<T> TubeSend<T> {
                 Ok(empty_dish) => self.dishes.push_back(empty_dish),
                 Err(TryRecvError::Empty) => return Ok(()), // 无可用缓冲区
                 Err(TryRecvError::Disconnected) => {
-                    return Err(anyhow!("[messages] 管道已关闭，发送被阻止"))
+                    return Err(anyhow!("[utility] 管道已关闭，发送被阻止"))
                 }
             }
         }
         // 发送缓冲区中的第一个数据
         self.supply
-            .send(self.dishes.pop_front().expect(TUBE_PANIC))
-            .map_err(|_| anyhow!("[messages] 管道已关闭，发送被阻止"))
+            .send(self.dishes.pop_front().expect("[Tube] 数据结构逻辑错误"))
+            .map_err(|_| anyhow!("[utility] 管道已关闭，发送被阻止"))
     }
 }
 
@@ -104,7 +234,7 @@ impl<T> TubeRecv<T> {
     pub fn recv(&self) -> Result<Box<T>, anyhow::Error> {
         self.fetch
             .recv()
-            .map_err(|_| anyhow!("[messages] 管道已关闭，接收被阻止"))
+            .map_err(|_| anyhow!("[utility] 管道已关闭，接收被阻止"))
     }
 
     /// 回收空缓冲区，将其返还给发送端
@@ -118,7 +248,7 @@ impl<T> TubeRecv<T> {
     pub fn recycle(&self, empty_dish: Box<T>) -> Result<(), anyhow::Error> {
         self.refund
             .send(empty_dish)
-            .map_err(|_| anyhow!("[messages] 管道已关闭，回收被阻止"))
+            .map_err(|_| anyhow!("[utility] 管道已关闭，回收被阻止"))
     }
 }
 
@@ -183,7 +313,7 @@ mod tests {
         // 尝试发送数据
         assert!(matches!(
             tube_send.send(),
-            Err(e) if e.to_string() == "[messages] 管道已关闭，发送被阻止"
+            Err(e) if e.to_string() == "[utility] 管道已关闭，发送被阻止"
         ));
     }
 
@@ -197,7 +327,7 @@ mod tests {
         // 尝试接收数据
         assert!(matches!(
             tube_recv.recv(),
-            Err(e) if e.to_string() == "[messages] 管道已关闭，接收被阻止"
+            Err(e) if e.to_string() == "[utility] 管道已关闭，接收被阻止"
         ));
     }
 
@@ -217,7 +347,7 @@ mod tests {
         let empty_dish = recv_buffer.unwrap();
         assert!(matches!(
             tube_recv.recycle(empty_dish),
-            Err(e) if e.to_string() == "[messages] 管道已关闭，回收被阻止"
+            Err(e) if e.to_string() == "[utility] 管道已关闭，回收被阻止"
         ));
     }
 }

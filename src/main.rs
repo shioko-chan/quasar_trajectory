@@ -5,20 +5,18 @@ use std::{
 
 use log::{debug, error, info, warn};
 
+use utility::stop_all;
+
 fn main() {
-    config::load_config();
     env_logger::init();
 
-    let stop_signal = Arc::new(AtomicBool::new(false));
-
     ctrlc::set_handler({
-        let stop_signal = stop_signal.clone();
         move || {
-            stop_signal.store(true, std::sync::atomic::Ordering::SeqCst);
+            stop_all();
         }
     })
     .expect("Error setting Ctrl-C handler");
-    let handle = detector::detector(stop_signal.clone());
+    let handle = detector::detector();
     handle.join().unwrap().unwrap_or_else(|err| {
         error!("检测器异常退出: {}", err);
     });

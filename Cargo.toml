@@ -5,7 +5,15 @@ edition = "2021"
 
 
 [workspace]
-members = ["config", "controller", "detector", "messages", "server", "tracker"]
+members = [
+    "config",
+    "controller",
+    "detector",
+    "server",
+    "tracker",
+    "detector/camera",
+    "utility",
+]
 
 [workspace.dependencies]
 opencv = { version = "0.94.2", features = ["clang-runtime"] }
@@ -13,12 +21,16 @@ anyhow = "1.0.95"
 criterion = "0.5.1"
 bindgen = "0.71.1"
 libc = "0.2.169"
-cc = "1.2.12"
+cc = "1.2.13"
 log = "0.4.25"
 rand = "0.9.0"
 crossbeam-channel = "0.5.14"
+config = { path = "config" }
+utility = { path = "utility" }
+
 
 [dependencies]
+utility = { path = "utility" }
 detector = { path = "detector" }
 config = { path = "config" }
 log = { workspace = true }

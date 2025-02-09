@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use messages::new_tube;
+use utility::new_tube;
 
 fn bench_tube(c: &mut Criterion) {
     c.bench_function("tube", |b| {

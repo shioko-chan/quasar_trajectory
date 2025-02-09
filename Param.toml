@@ -14,3 +14,6 @@ height = 1080 # 图像高度
 [track]
 
 [robot]
+
+[gui]
+max_fps = 30

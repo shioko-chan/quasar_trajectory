@@ -3,23 +3,17 @@
  * @brief 为海康威视USB工业相机编写的相机控制API的函数声明
  *
  * @details
- * 该文件包含了相机控制相关的API定义，实现包含在同一目录下的lib.c文件中，包括初始化、关闭以及错误处理等
+ * 该文件包含了相机控制相关的API定义，实现包含在同一目录下的lib.c文件中，包括初始化、关闭以及错误处理、参数设置等功能
  * 若要更新lib.c中的函数，需要在此更新函数声明
- *
- * @author
- * 刘浩然
  *
  * @date
  * 2025-01-19
- *
- * @version
- * 1.0.0
  *
  * @copyright
  * Copyright (c) 2025, XMU RCS Robotics Lab. All rights reserved.
  *
  * @note
- * 暂无，过会写。
+ * 本文件仅适用于海康威视USB工业相机，其他型号相机可能需要修改
  */
 
 #include "../camera_utils.h"
@@ -87,3 +81,58 @@ APIError set_int_param(unsigned int cam_idx, const char *param_name, unsigned in
  * @remarks 具体参数列表参见海康威视相机手册
  */
 APIError set_float_param(unsigned int cam_idx, const char *param_name, float value);
+
+/**
+ * @brief 设置相机布尔型参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [IN] 参数值
+ * @return 成功，返回APIError{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回APIError
+ * @remarks 该函数用于设置相机的布尔型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
+APIError set_bool_param(unsigned int cam_idx, const char *param_name, bool value);
+
+/**
+ * @brief 读取相机枚举参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [OUT] 参数值
+ * @return 成功，返回APIError{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回APIError
+ * @remarks 该函数用于读取相机的枚举类型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
+APIError read_enum_param(unsigned int cam_idx, const char *param_name, unsigned int *value);
+
+/**
+ * @brief 读取相机整型参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [OUT] 参数值
+ * @return 成功，返回APIError{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回APIError
+ * @remarks 该函数用于读取相机的整型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
+APIError read_int_param(unsigned int cam_idx, const char *param_name, unsigned int *value);
+
+/**
+ * @brief 读取相机浮点型参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [OUT] 参数值
+ * @return 成功，返回APIError{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回APIError
+ * @remarks 该函数用于读取相机的浮点型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
+APIError read_float_param(unsigned int cam_idx, const char *param_name, float *value);
+
+/**
+ * @brief 读取相机布尔型参数
+ * @param cam_idx [IN] 指定相机的索引
+ * @param param_name [IN] 参数名称
+ * @param value [OUT] 参数值
+ * @return 成功，返回APIError{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回APIError
+ * @remarks 该函数用于读取相机的布尔型参数，param_name为参数名称，value为参数值
+ * @remarks 具体参数列表参见海康威视相机手册
+ */
+APIError read_bool_param(unsigned int cam_idx, const char *param_name, bool *value);
