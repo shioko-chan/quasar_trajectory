@@ -1,140 +1,210 @@
-use crossbeam_channel::{unbounded as channel, Receiver, Sender, TryRecvError};
+use config::CONFIG;
+use crossbeam_channel::{select, unbounded, RecvTimeoutError};
+use opencv::{self as cv, core::*};
+use rand::{rngs::ThreadRng, Rng};
+use serde::{Deserialize, Serialize};
 use std::{
+    io,
+    marker::PhantomData,
+    net::TcpListener,
     sync::OnceLock,
+    thread,
     time::{Duration, Instant},
 };
-use utility::{is_stopped, stop_all};
+use ultraviolet::Vec3;
+use utility::{ensure_or_stop, expect_or_stop, is_stopped, stop_all, unwrap_or_stop};
 
-pub type BoxedMessage = Box<dyn Send>;
-static SENDER: OnceLock<Sender<BoxedMessage>> = OnceLock::new();
+static SENDER: OnceLock<crossbeam_channel::Sender<tungstenite::Message>> = OnceLock::new();
 
-pub fn send(msg: BoxedMessage) {
+fn send(msg: tungstenite::Message) -> anyhow::Result<()> {
     let sender = SENDER.get_or_init(|| {
-        let (sender, receiver) = channel();
+        let (sender, receiver) = unbounded();
         launch_server(receiver);
         sender
     });
-    sender.send(msg).unwrap();
+    Ok(sender.send(msg)?)
 }
 
-fn launch_server(receiver: Receiver<BoxedMessage>) {
-    std::thread::spawn(|| {
-        while !is_stopped() {
-            //
+fn launch_server(receiver: crossbeam_channel::Receiver<tungstenite::Message>) {
+    let server = unwrap_or_stop!(TcpListener::bind("0.0.0.0:25801"));
+    server
+        .set_nonblocking(true)
+        .expect("[可视化][ERR-01] 无法设置TCP Server为非阻塞");
+
+    thread::spawn(move || {
+        for res in server.incoming() {
+            if matches!(res, Err(ref e) if e.kind() == io::ErrorKind::WouldBlock) {
+                thread::sleep(Duration::from_millis(100));
+                continue;
+            }
+            let stream = expect_or_stop!(res, "[可视化][ERR-02] 建立TCP连接时出错");
+            let mut websocket = expect_or_stop!(
+                tungstenite::accept(stream),
+                "[可视化][ERR-03] 无法建立WebSocket连接"
+            );
+
+            while !is_stopped() {
+                let res = receiver.recv_timeout(Duration::from_millis(10));
+                if matches!(res, Err(RecvTimeoutError::Timeout)) {
+                    continue;
+                }
+                let message = expect_or_stop!(res, "[可视化][ERR-04] Channel接收消息失败");
+
+                let res = websocket.send(message);
+                if matches!(res, Err(tungstenite::Error::ConnectionClosed)) {
+                    break;
+                }
+                expect_or_stop!(res, "[可视化][ERR-05] Websocket 发送消息失败");
+            }
+            if is_stopped() {
+                break;
+            }
         }
     });
 }
 
-// use tungstenite::WebSocket;
+pub struct FPSMonitor {
+    rng: ThreadRng,
+    cnt: u8,
+    fps: Option<f32>,
+    start: Instant,
+    max_fps: u8,
+}
 
-// #[cfg(feature = "gui")]
-// mod gui {
-//     use super::*;
-//     fn wait_connection(terminate: Arc<AtomicBool>) -> Result<TcpStream, anyhow::Error> {
-//         let server = TcpListener::bind("0.0.0.0:16700").expect("[可视化] 无法绑定端口 16700");
-//         server
-//             .set_nonblocking(true)
-//             .expect("[可视化] 无法设置TCP Server为非阻塞");
-//         let (stream, socket) = loop {
-//             ensure!(!terminate.load(atomic::Ordering::Relaxed), "线程被中断");
-//             let res = server.accept();
-//             if res.is_ok() {
-//                 break res;
-//             }
-//             ensure!(
-//                 matches!(res, Err(e) if e.kind()!=io::ErrorKind::WouldBlock),
-//                 "无法接受连接"
-//             );
-//         }?;
-//         info!("[可视化] 相机可视化已连接到: {:?}", socket);
-//         Ok(stream)
-//     }
+impl FPSMonitor {
+    const ESTIMATE_CNT: u8 = 100;
 
-//
-// }
+    pub fn new(max_fps: u8) -> Self {
+        Self {
+            rng: rand::rng(),
+            cnt: 0,
+            fps: None,
+            start: Instant::now(),
+            max_fps,
+        }
+    }
 
-// /// WebSocket 会话结构体，保存心跳时间
-// struct MyWebSocket {
-//     /// 记录上次收到 ping/pong 的时间
-//     hb: Instant,
-// }
-
-// impl MyWebSocket {
-//     fn new() -> Self {
-//         Self { hb: Instant::now() }
-//     }
-
-//     /// 启动心跳检测，间隔 5 秒发送 ping，并在 10 秒内未收到响应则关闭连接
-//     fn hb(&self, ctx: &mut ws::WebsocketContext<Self>) {
-//         ctx.run_interval(Duration::from_secs(5), |act, ctx| {
-//             if Instant::now().duration_since(act.hb) > Duration::from_secs(10) {
-//                 println!("心跳超时，关闭连接");
-//                 ctx.stop();
-//                 return;
-//             }
-//             ctx.ping(b"");
-//         });
-//     }
-// }
-
-// impl Actor for MyWebSocket {
-//     type Context = ws::WebsocketContext<Self>;
-
-//     /// 当 Actor 启动时，启动心跳检测
-//     fn started(&mut self, ctx: &mut Self::Context) {
-//         self.hb(ctx);
-//     }
-// }
-
-// /// 实现 StreamHandler 用于处理 WebSocket 消息
-// impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
-//     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
-//         match msg {
-//             Ok(ws::Message::Ping(msg)) => {
-//                 self.hb = Instant::now();
-//                 ctx.pong(&msg);
-//             }
-//             Ok(ws::Message::Pong(_)) => {
-//                 self.hb = Instant::now();
-//             }
-//             Ok(ws::Message::Text(text)) => {
-//                 // 回显文本消息
-//                 ctx.text(text);
-//             }
-//             Ok(ws::Message::Binary(bin)) => {
-//                 // 回显二进制消息
-//                 ctx.binary(bin);
-//             }
-//             Ok(ws::Message::Close(reason)) => {
-//                 ctx.close(reason);
-//                 ctx.stop();
-//             }
-//             _ => (),
-//         }
-//     }
-// }
-
-// /// HTTP handler，将请求升级为 WebSocket 连接
-// async fn ws_index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-//     ws::start(MyWebSocket::new(), &req, stream)
-// }
-
-// #[actix_web::main]
-// async fn main() -> std::io::Result<()> {
-//     println!("WebSocket 服务启动于 127.0.0.1:8080");
-//     HttpServer::new(|| App::new().route("/ws/", web::get().to(ws_index)))
-//         .bind("127.0.0.1:8080")?
-//         .run()
-//         .await
-// }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    pub fn limit(&mut self) -> bool {
+        self.cnt += 1;
+        if self.cnt >= Self::ESTIMATE_CNT {
+            self.fps = Some(Self::ESTIMATE_CNT as f32 / self.start.elapsed().as_secs_f32());
+            self.cnt = 0;
+            self.start = Instant::now();
+        }
+        if let Some(fps) = self.fps {
+            let probability = self.max_fps as f32 / fps;
+            self.rng.random::<f32>() < probability
+        } else {
+            false
+        }
     }
 }
+
+#[derive(Serialize)]
+struct Message<'a, T> {
+    identifier: &'a String,
+    data: T,
+}
+
+pub struct OnceSender {
+    identifier: String,
+}
+
+impl OnceSender {
+    pub fn new(identifier: String) -> Self {
+        Self { identifier }
+    }
+
+    pub fn send<T>(&self, data: T) -> anyhow::Result<()>
+    where
+        T: Serialize,
+    {
+        send(tungstenite::Message::Binary(
+            rmp_serde::to_vec(&Message {
+                identifier: &self.identifier,
+                data,
+            })?
+            .into(),
+        ))
+    }
+}
+
+pub struct PeriodicSender {
+    fps_monitor: FPSMonitor,
+    identifier: String,
+}
+
+impl PeriodicSender {
+    pub fn new(identifier: String, max_fps: u8) -> Self {
+        Self {
+            fps_monitor: FPSMonitor::new(max_fps),
+            identifier,
+        }
+    }
+
+    pub fn send<T>(&mut self, data: T) -> anyhow::Result<()>
+    where
+        T: Serialize,
+    {
+        if !self.fps_monitor.limit() {
+            return Ok(());
+        }
+        send(tungstenite::Message::Binary(
+            rmp_serde::to_vec(&Message {
+                identifier: &self.identifier,
+                data,
+            })?
+            .into(),
+        ))
+    }
+}
+
+pub struct ImageSender {
+    fps_monitor: FPSMonitor,
+    identifier: String,
+    buffer: Vector<u8>,
+}
+
+impl ImageSender {
+    pub fn new(identifier: String, max_fps: u8) -> Self {
+        Self {
+            fps_monitor: FPSMonitor::new(max_fps),
+            identifier,
+            buffer: Vector::new(),
+        }
+    }
+
+    pub fn send(&mut self, mat: &Mat) -> anyhow::Result<()> {
+        if !self.fps_monitor.limit() {
+            return Ok(());
+        }
+        cv::imgcodecs::imencode(".jpg", mat, &mut self.buffer, &Vector::new())?;
+        send(tungstenite::Message::Binary(
+            rmp_serde::to_vec(&Message {
+                identifier: &self.identifier,
+                data: self.buffer.as_slice(),
+            })?
+            .into(),
+        ))
+    }
+}
+
+pub struct VideoSender(PeriodicSender, ImageSender);
+
+impl VideoSender {
+    pub fn new(identifier: String, max_fps: u8, fps_report_freq: u8) -> Self {
+        Self(
+            PeriodicSender::new(format!("{}的帧率", identifier), fps_report_freq),
+            ImageSender::new(identifier, max_fps),
+        )
+    }
+
+    pub fn send(&mut self, mat: &Mat) -> anyhow::Result<()> {
+        self.1.send(mat)?;
+        self.0.send(self.0.fps_monitor.fps.unwrap_or(0.0))?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {}

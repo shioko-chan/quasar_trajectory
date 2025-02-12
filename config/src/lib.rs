@@ -112,7 +112,9 @@ pub struct Track {}
 pub struct Robot {}
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub struct GUI {}
+pub struct GUI {
+    // pub video_fps: u8,
+}
 
 fn find_config() -> Option<(File, PathBuf)> {
     // 从环境变量获取
@@ -185,7 +187,6 @@ Quasar Trajectory对于配置文件的查找路径有三种方案，按优先级
     })
 }
 
-#[cfg(feature = "gui")]
 pub fn save_config() {
     let config = toml::to_string(CONFIG.get()).expect("序列化全局config失败");
 

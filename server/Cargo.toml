@@ -1,12 +1,18 @@
 [package]
+edition = "2021"
 name = "server"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-log = { workspace = true }
-anyhow = { workspace = true }
-crossbeam-channel = { workspace = true }
+anyhow = {workspace = true}
+config = {workspace = true}
+crossbeam-channel = {workspace = true}
+log = {workspace = true}
+opencv = {workspace = true}
+rand = {workspace = true}
+serde = {workspace = true}
+tungstenite = {workspace = true}
+ultraviolet = {workspace = true}
+utility = {workspace = true}
 
-config = { workspace = true }
-utility = { workspace = true }
+rmp-serde = {workspace = true}

@@ -1,22 +1,22 @@
 [package]
+edition = "2021"
 name = "utility"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-log = { workspace = true }
-anyhow = { workspace = true }
-crossbeam-channel = { workspace = true }
-rand = { workspace = true }
+anyhow = {workspace = true}
+crossbeam-channel = {workspace = true}
+log = {workspace = true}
+rand = {workspace = true}
 
 # server = { workspace = true, optional = true }
 
 [dev-dependencies]
-criterion = { workspace = true }
+criterion = {workspace = true}
 
 [[bench]]
-name = "tube_benchmark"
 harness = false
+name = "tube_benchmark"
 
 [features]
 gui = []

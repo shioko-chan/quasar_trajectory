@@ -1,0 +1,48 @@
+# 注意name是唯一标识
+
+[DeviceInfo]
+
+# 设备类型（只在初始化时发送）
+DeviceType = { name = "设备类型", type = "enum", push = false, frequency = 0 }
+
+# 设备扫描类型：区域扫描或线扫描（只在初始化时发送）
+DeviceScanType = { name = "设备扫描类型", type = "enum", push = false, frequency = 0 }
+
+# 设备制造商名称（只在初始化时发送）
+DeviceVendorName = { name = "制造商名称", type = "string", push = false, frequency = 0 }
+
+# 设备型号名称（只在初始化时发送）
+DeviceModelName = { name = "设备型号", type = "string", push = false, frequency = 0 }
+
+# 设备制造商信息（只在初始化时发送）
+DeviceManufacturerInfo = { name = "制造商信息", type = "string", push = false, frequency = 0 }
+
+# 设备版本（只在初始化时发送）
+DeviceVersion = { name = "设备版本", type = "string", push = false, frequency = 0 }
+
+# 固件版本（只在初始化时发送）
+DeviceFirmwareVersion = { name = "固件版本", type = "string", push = false, frequency = 0 }
+
+# 设备序列号（只在初始化时发送）
+DeviceSerialNumber = { name = "设备序列号", type = "string", push = false, frequency = 0 }
+
+# 设备ID（只在初始化时发送）
+DeviceID = { name = "设备标识", type = "string", push = false, frequency = 0 }
+
+# 设备运行时间（需要定期推送，单位：秒）
+DeviceUptime = { name = "设备运行时间", type = "integer", push = true, frequency = 1 }
+
+# 板卡设备类型（只在初始化时发送）
+BoardDeviceType = { name = "板卡类型", type = "integer", push = false, frequency = 0 }
+
+# 设备连接速度（单位：Mbps，通常不变，仅在初始化时发送）
+DeviceConnectionSpeed = { name = "连接速度", type = "integer", push = false, frequency = 0 }
+
+# 设备链路速度（可能会变化，定期推送）
+DeviceLinkSpeed = { name = "链路速度", type = "integer", push = true, frequency = 5 }
+
+# 设备链路连接数量（定期推送）
+DeviceLinkConnectionCount = { name = "链路连接数量", type = "integer", push = true, frequency = 5 }
+
+# 设备最大吞吐量（带宽，定期推送）
+DeviceMaxThroughput = { name = "最大吞吐量", type = "integer", push = true, frequency = 5 }

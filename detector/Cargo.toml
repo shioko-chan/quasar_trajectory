@@ -1,20 +1,18 @@
 [package]
+edition = "2021"
 name = "detector"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-utility = { path = "../utility" }
-config = { path = "../config" }
-server = { path = "../server", optional = true }
-camera = { path = "camera" }
 anyhow = { workspace = true }
-# libc = { workspace = true }
+camera = { workspace = true }
+config = { workspace = true }
+# libc = {workspace = true}
 log = { workspace = true }
 opencv = { workspace = true }
 rand = { workspace = true }
+server = { workspace = true, optional = true }
+utility = { workspace = true }
 
 [features]
-mindvision = ["camera/mindvision"]
-hikvision = ["camera/hikvision"]
-gui = ["server", "config/gui"]
+gui = ["server"]

@@ -1,0 +1,276 @@
+# 注意name是唯一标识
+
+[ImageFormatControl]
+
+# 最大图像宽度，经过降采样后的数据
+WidthMax = { name = "最大图像宽度", range = { min = 1, max = 8192 }, type = "integer" }
+
+# 最大图像高度，经过降采样后的数据
+HeightMax = { name = "最大图像高度", range = { min = 1, max = 8192 }, type = "integer" }
+
+# 区域选择器
+RegionSelector = { name = "区域选择器", options = [
+    "Region0",
+    "Region1",
+    "Region2",
+    "All",
+], type = "enum" }
+
+# ROI对应的流
+RegionDestination = { name = "ROI对应的流", options = [
+    "Stream0",
+    "Stream1",
+    "Stream2",
+], type = "enum" }
+
+# ROI宽度
+Width = { name = "ROI宽度", range = { min = 1, max = 2048 }, type = "integer" }
+
+# ROI高度
+Height = { name = "ROI高度", range = { min = 1, max = 2048 }, type = "integer" }
+
+# ROI水平偏移
+OffsetX = { name = "ROI水平偏移", range = { min = 0, max = 2048 }, type = "integer" }
+
+# ROI垂直偏移
+OffsetY = { name = "ROI垂直偏移", range = { min = 0, max = 2048 }, type = "integer" }
+
+# 反向扫描方向
+ReverseScanDirection = { name = "反向扫描方向", type = "bool" }
+
+# 图像像素格式
+PixelFormat = { name = "图像像素格式", options = [
+    "Mono8",
+    "Mono10",
+    "Mono10Packed",
+    "Mono12",
+    "Mono12Packed",
+    "Mono16",
+    "RGB8Packed",
+    "YUV422_8",
+    "YUV422_8_UYVY",
+    "BayerGR8",
+    "BayerRG8",
+    "BayerGB8",
+    "BayerBG8",
+    "BayerGB10",
+    "BayerGB12",
+    "BayerGB12Packed",
+], type = "enum" }
+
+# 像素大小
+PixelSize = { name = "像素大小", options = [
+    "Bpp8",
+    "Bpp10",
+    "Bpp12",
+    "Bpp16",
+    "Bpp24",
+    "Bpp32",
+], type = "enum" }
+
+# 图像压缩模式
+ImageCompressionMode = { name = "图像压缩模式", options = [
+    "Off",
+    "JPEG",
+], type = "enum" }
+
+# 图像压缩质量
+ImageCompressionQuality = { name = "图像压缩质量", range = { min = 50, max = 100 }, type = "integer" }
+
+# 测试图案生成器选择器
+TestPatternGeneratorSelector = { name = "测试图案生成器选择器", options = [
+    "Sensor",
+    "Region0",
+    "Region1",
+    "Region2",
+], type = "enum" }
+
+# 测试图像选择器
+TestPattern = { name = "测试图像选择器", options = [
+    "Off",
+    "Black",
+    "White",
+    "GreyHorizontalRamp",
+    "GreyVerticalRamp",
+    "GreyHorizontalRampMoving",
+    "GreyVerticalRampMoving",
+    "HorizontalLineMoving",
+    "VerticalLineMoving",
+    "ColorBar",
+    "FrameCounter",
+    "MonoBar",
+    "TestImage12",
+    "TestImage13",
+    "ObliqueMonoBar",
+    "ObliqueColorBar",
+    "GradualMonoBar",
+], type = "enum" }
+
+# 水印信息选择器
+FrameSpecInfoSelector = { name = "水印信息选择器", options = [
+    "Timestamp",
+    "Gain",
+    "Exposure",
+    "BrightnessInfo",
+    "WhiteBalance",
+    "Framecounter",
+    "ExtTriggerCount",
+    "LineInputOutput",
+    "ROIPosition",
+], type = "enum" }
+
+# 是否启用水印信息
+FrameSpecInfo = { name = "是否启用水印信息", type = "bool" }
+
+
+[AcquisitionControl]
+
+# 采集模式：单帧 / 多帧 / 连续
+AcquisitionMode = { name = "采集模式", options = [
+    "SingleFrame",
+    "MultiFrame",
+    "Continuous",
+], type = "enum" }
+
+# 曝光模式
+ExposureMode = { name = "曝光模式", options = [
+    "Timed",
+    "TriggerWidth",
+], type = "enum" }
+
+ExposureTime = { name = "曝光时间", range = { min = 0.0, max = 1000000.0 }, type = "float" } # 曝光时间（单位：微秒）
+
+# 自动曝光模式
+ExposureAuto = { name = "自动曝光模式", options = [
+    "Off",
+    "Once",
+    "Continuous",
+], type = "enum" }
+
+# 自动曝光时间下限（单位：微秒）
+AutoExposureTimeLowerLimit = { name = "自动曝光时间下限", range = { min = 0.0, max = 1000000.0 }, type = "integer" }
+
+# 自动曝光时间上限（单位：微秒）
+AutoExposureTimeUpperLimit = { name = "自动曝光时间上限", range = { min = 0.0, max = 1000000.0 }, type = "integer" }
+
+# 启用帧超时
+FrameTimeoutEnable = { name = "启用帧超时", type = "bool" }
+
+# 帧超时周期（单位：毫秒）
+FrameTimeoutTime = { name = "帧超时周期", range = { min = 87, max = 5000 }, type = "integer" }
+
+
+[AnalogControl]
+
+Gain = { name = "增益", range = { min = 0.0, max = 100.0 }, type = "float" } # 设置图像的增益值，用于调整亮度。# 增益值（单位：dB）
+
+# 自动增益模式
+GainAuto = { name = "自动增益模式", options = [
+    "Off",
+    "Once",
+    "Continuous",
+], type = "enum" } # 控制是否启用自动增益，选项包括关闭、一次性增益和连续增益。
+
+AutoGainLowerLimit = { name = "自动增益下限", range = { min = 0.0, max = 100.0 }, type = "float" } # 设置自动增益的下限，确保不会低于此值。# 自动增益下限（单位：dB）
+
+AutoGainUpperLimit = { name = "自动增益上限", range = { min = 0.0, max = 100.0 }, type = "float" } # 设置自动增益的上限，避免增益过高。# 自动增益上限（单位：dB）
+
+# 启用ADC增益
+ADCGainEnable = { name = "启用ADC增益", type = "bool" } # 启用或禁用ADC增益，用于调整模拟信号的增益。
+
+DigitalShift = { name = "数字移位", range = { min = 0.0, max = 10.0 }, type = "float" } # 调整数字图像的移位，影响图像的亮度和对比度。# 数字移位调整
+
+# 启用数字移位
+DigitalShiftEnable = { name = "启用数字移位", type = "bool" } # 启用或禁用数字移位调整。
+
+# 亮度调整
+Brightness = { name = "亮度调整", range = { min = 0, max = 100 }, type = "integer" } # 调整图像的亮度，数值越高图像越亮。
+
+BlackLevel = { name = "黑电平", range = { min = 0.0, max = 100.0 }, type = "float" } # 调整图像的黑电平，避免图像过暗或出现过多噪点。# 黑电平调整
+
+# 启用黑电平调整
+BlackLevelEnable = { name = "启用黑电平调整", type = "bool" } # 启用或禁用黑电平调整。
+
+# 自动白平衡模式
+BalanceWhiteAuto = { name = "自动白平衡模式", options = [
+    "Off",
+    "Continuous",
+    "Once",
+], type = "enum" } # 控制是否启用自动白平衡，选项包括关闭、一次性调整和连续调整。
+
+# 白平衡比率选择器
+BalanceRatioSelector = { name = "白平衡比率选择器", options = [
+    "Red",
+    "Green",
+    "Blue",
+], type = "enum" } # 选择用于白平衡调整的颜色通道。
+
+# 白平衡值
+BalanceRatio = { name = "白平衡值", range = { min = 0, max = 255 }, type = "integer" } # 设置白平衡的具体值，通常用在色温调节中。
+
+Gamma = { name = "Gamma值", range = { min = 0.0, max = 5.0 }, type = "float" } # 设置图像的Gamma值，影响图像的亮度曲线。# Gamma值
+
+# Gamma选择器
+GammaSelector = { name = "Gamma选择器", options = [
+    "User",
+    "sRGB",
+], type = "enum" } # 选择Gamma调整方式，包括用户自定义或sRGB标准。
+
+# 启用Gamma调整
+GammaEnable = { name = "启用Gamma调整", type = "bool" } # 启用或禁用Gamma调整。
+
+# 色调调整
+Hue = { name = "色调调整", range = { min = 0, max = 360 }, type = "integer" } # 调整图像的色调，影响图像的颜色倾向。
+
+# 启用色调调整
+HueEnable = { name = "启用色调调整", type = "bool" } # 启用或禁用色调调整。
+
+# 饱和度调整
+Saturation = { name = "饱和度调整", range = { min = 0, max = 100 }, type = "integer" } # 调整图像的饱和度，影响颜色的强度。
+
+# 启用饱和度调整
+SaturationEnable = { name = "启用饱和度调整", type = "bool" } # 启用或禁用饱和度调整。
+
+[LUTControl]
+
+# LUT选择器：亮度、红色、绿色、蓝色
+LUTSelector = { name = "LUT选择器", options = [
+    "Luminance",
+    "Red",
+    "Green",
+    "Blue",
+], type = "enum" } # 选择LUT的颜色通道，控制亮度或RGB色彩通道的LUT。
+
+# 启用LUT
+LUTEnable = { name = "启用LUT", type = "bool" } # 启用或禁用LUT功能。
+
+# LUT索引
+LUTIndex = { name = "LUT索引", range = { min = 0, max = 255 }, type = "integer" } # 设置LUT的索引，用于选择不同的LUT条目。
+
+# LUT值
+LUTValue = { name = "LUT值", range = { min = 0, max = 255 }, type = "integer" } # 设置LUT的值，通常用于色彩校正或亮度调整，具体值根据设备的要求而定。
+
+[FrequencyConverterControl]
+
+# 频率分频器输入源
+InputSource = { name = "频率分频器输入源", options = [
+    "Line0",
+    "Line1",
+    "Line2",
+    "Line3",
+], type = "enum" } # 选择频率分频器的输入源，可以是不同的输入线路（Line0, Line1等）。
+
+# 频率分频器信号方向
+SignalAlignment = { name = "频率分频器信号方向", options = [
+    "RisingEdge",
+    "FallingEdge",
+], type = "enum" } # 控制信号的触发方向，选择上升沿或下降沿作为信号的有效边缘。
+
+# 预分频器调整
+PreDivider = { name = "预分频器调整", range = { min = 1, max = 1000 }, type = "integer" } # 设置预分频器值，通常用于降低输入频率，值越大，频率越低。
+
+# 乘法器调整
+Multiplier = { name = "乘法器调整", range = { min = 1, max = 1000 }, type = "integer" } # 设置频率转换中的乘法器，用于放大输入频率。
+
+# 后分频器调整
+PostDivider = { name = "后分频器调整", range = { min = 1, max = 1000 }, type = "integer" } # 设置后分频器值，通常用于降低转换后的频率，值越大，频率越低。
