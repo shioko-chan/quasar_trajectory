@@ -355,8 +355,7 @@ use rand::{rngs::ThreadRng, Rng};
 //         }
 //     }
 // }
-
-fn camera_launch(sender: TubeSend<Mat>) -> JoinHandle<Result<(), anyhow::Error>> {
+fn camera_launch(sender: TubeSend<Mat>) -> JoinHandle<anyhow::Result<()>> {
     thread::spawn(move || {
         init_sdk()?;
         init_cameras()?;
@@ -417,6 +416,7 @@ fn camera_launch(sender: TubeSend<Mat>) -> JoinHandle<Result<(), anyhow::Error>>
                 }
             }
         }
+        Ok(())
     })
 }
 

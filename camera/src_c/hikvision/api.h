@@ -119,7 +119,7 @@ APIError set_string_param(unsigned int cam_idx, const char *param_name, const ch
  * @return APIError 错误信息，如果成功则 code == MV_OK
  * @remarks 具体参数列表参见海康威视相机手册
  */
-APIError read_int_param(unsigned int cam_idx, const char *param_name, CIntParamInfo *out_info);
+APIError get_int_param(unsigned int cam_idx, const char *param_name, CIntParamInfo *out_info);
 
 /**
  * @brief 读取指定相机指定浮点数参数的当前值和范围信息，并填充到 out_info 中。
@@ -130,7 +130,7 @@ APIError read_int_param(unsigned int cam_idx, const char *param_name, CIntParamI
  * @return APIError 错误信息，如果成功则 code == MV_OK
  * @remarks 具体参数列表参见海康威视相机手册
  */
-APIError read_float_param(unsigned int cam_idx, const char *param_name, CFloatParamInfo *out_info);
+APIError get_float_param(unsigned int cam_idx, const char *param_name, CFloatParamInfo *out_info);
 
 /**
  * @brief 读取相机布尔型参数
@@ -140,7 +140,7 @@ APIError read_float_param(unsigned int cam_idx, const char *param_name, CFloatPa
  * @return 成功，返回APIError{is_Hik_err=false, code=CAMERA_API_OK}；错误，返回APIError
  * @remarks 具体参数列表参见海康威视相机手册
  */
-APIError read_bool_param(unsigned int cam_idx, const char *param_name, bool *out_info);
+APIError get_bool_param(unsigned int cam_idx, const char *param_name, bool *out_info);
 
 /**
  * @brief 读取指定相机指定字符串参数的当前值和该位置能接受字符串参数的最大长度
@@ -150,7 +150,7 @@ APIError read_bool_param(unsigned int cam_idx, const char *param_name, bool *out
  * @return APIError 错误信息，如果成功则 code == MV_OK
  * @remarks 具体参数列表参见海康威视相机手册
  */
-APIError read_string_param(unsigned int cam_idx, const char *param_name, CStringParamInfo *out_info);
+APIError get_string_param(unsigned int cam_idx, const char *param_name, CStringParamInfo *out_info);
 /**
  * @brief 读取指定相机指定枚举参数的当前值和支持的枚举项，
  *        将结果以 CEnumStringList 结构体形式返回。
@@ -160,4 +160,4 @@ APIError read_string_param(unsigned int cam_idx, const char *param_name, CString
  * @return APIError 错误信息，如果成功则 code == MV_OK
  * @remarks 具体参数列表参见海康威视相机手册
  */
-APIError read_enum_param(unsigned int cam_idx, const char *param_name, CEnumStringList *out_list);
+APIError get_enum_param(unsigned int cam_idx, const char *param_name, CEnumStringList *out_list);

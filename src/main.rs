@@ -16,7 +16,8 @@ fn main() {
         }
     })
     .expect("Error setting Ctrl-C handler");
-    let handle = detector::detector();
+    // let handle = detector::detector();
+    camera::test();
     handle.join().unwrap().unwrap_or_else(|err| {
         error!("检测器异常退出: {}", err);
     });

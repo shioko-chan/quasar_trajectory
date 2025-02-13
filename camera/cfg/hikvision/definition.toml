@@ -1,0 +1,78 @@
+[[groups]]
+parameters = [
+    { key = "最大图像宽度", ref = "WidthMax", type = "integer" },
+    { key = "最大图像高度", ref = "HeightMax", type = "integer" },
+    { key = "区域选择器", ref = "RegionSelector", type = "enum" },
+    { key = "ROI对应的流", ref = "RegionDestination", type = "enum" },
+    { key = "ROI宽度", ref = "Width", type = "integer" },
+    { key = "ROI高度", ref = "Height", type = "integer" },
+    { key = "ROI水平偏移", ref = "OffsetX", type = "integer" },
+    { key = "ROI垂直偏移", ref = "OffsetY", type = "integer" },
+    { key = "反向扫描方向", ref = "ReverseScanDirection", type = "bool" },
+    { key = "图像像素格式", ref = "PixelFormat", type = "enum" },
+    { key = "像素大小", ref = "PixelSize", type = "enum" },
+    { key = "图像压缩模式", ref = "ImageCompressionMode", type = "enum" },
+    { key = "图像压缩质量", ref = "ImageCompressionQuality", type = "integer" },
+    { key = "测试图案生成器选择器", ref = "TestPatternGeneratorSelector", type = "enum" },
+    { key = "测试图像选择器", ref = "TestPattern", type = "enum" },
+    { key = "水印信息选择器", ref = "FrameSpecInfoSelector", type = "enum" },
+    { key = "是否启用水印信息", ref = "FrameSpecInfo", type = "bool" },
+]
+group_name = "图像格式控制"
+
+[[groups]]
+group_name = "采集控制"
+parameters = [
+    { key = "采集模式", ref = "AcquisitionMode", type = "enum" },
+    { key = "曝光模式", ref = "ExposureMode", type = "enum" },
+    { key = "曝光时间", ref = "ExposureTime", type = "float" },
+    { key = "自动曝光模式", ref = "ExposureAuto", type = "enum" },
+    { key = "自动曝光时间下限", ref = "AutoExposureTimeLowerLimit", type = "integer" },
+    { key = "自动曝光时间上限", ref = "AutoExposureTimeUpperLimit", type = "integer" },
+    { key = "启用帧超时", ref = "FrameTimeoutEnable", type = "bool" },
+    { key = "帧超时周期", ref = "FrameTimeoutTime", type = "integer" },
+]
+
+[[groups]]
+group_name = "模拟控制"
+parameters = [
+    { key = "增益", ref = "Gain", type = "float" },
+    { key = "自动增益模式", ref = "GainAuto", type = "enum" },
+    { key = "自动增益下限", ref = "AutoGainLowerLimit", type = "float" },
+    { key = "自动增益上限", ref = "AutoGainUpperLimit", type = "float" },
+    { key = "启用ADC增益", ref = "ADCGainEnable", type = "bool" },
+    { key = "数字移位", ref = "DigitalShift", type = "float" },
+    { key = "启用数字移位", ref = "DigitalShiftEnable", type = "bool" },
+    { key = "亮度调整", ref = "Brightness", type = "integer" },
+    { key = "黑电平", ref = "BlackLevel", type = "float" },
+    { key = "启用黑电平调整", ref = "BlackLevelEnable", type = "bool" },
+    { key = "自动白平衡模式", ref = "BalanceWhiteAuto", type = "enum" },
+    { key = "白平衡比率选择器", ref = "BalanceRatioSelector", type = "enum" },
+    { key = "白平衡值", ref = "BalanceRatio", type = "integer" },
+    { key = "Gamma值", ref = "Gamma", type = "float" },
+    { key = "Gamma选择器", ref = "GammaSelector", type = "enum" },
+    { key = "启用Gamma调整", ref = "GammaEnable", type = "bool" },
+    { key = "色调调整", ref = "Hue", type = "integer" },
+    { key = "启用色调调整", ref = "HueEnable", type = "bool" },
+    { key = "饱和度调整", ref = "Saturation", type = "integer" },
+    { key = "启用饱和度调整", ref = "SaturationEnable", type = "bool" },
+]
+
+[[groups]]
+group_name = "LUT控制"
+parameters = [
+    { key = "LUT选择器", ref = "LUTSelector", type = "enum" },
+    { key = "启用LUT", ref = "LUTEnable", type = "bool" },
+    { key = "LUT索引", ref = "LUTIndex", type = "integer" },
+    { key = "LUT值", ref = "LUTValue", type = "integer" },
+]
+
+[[groups]]
+group_name = "频率转换控制"
+parameters = [
+    { key = "频率分频器输入源", ref = "InputSource", type = "enum" },
+    { key = "频率分频器信号方向", ref = "SignalAlignment", type = "enum" },
+    { key = "预分频器调整", ref = "PreDivider", type = "integer" },
+    { key = "乘法器调整", ref = "Multiplier", type = "integer" },
+    { key = "后分频器调整", ref = "PostDivider", type = "integer" },
+]

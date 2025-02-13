@@ -145,11 +145,9 @@ dependencies = [
  "anyhow",
  "bindgen",
  "cc",
- "config",
  "log",
  "serde",
  "toml",
- "utility",
 ]
 
 [[package]]

@@ -59,7 +59,7 @@ void free_mem(void *ptr)
     free(ptr);
 }
 
-APIError read_int_param(unsigned int cam_idx, const char *param_name, CIntParamInfo *out_info)
+APIError get_int_param(unsigned int cam_idx, const char *param_name, CIntParamInfo *out_info)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
@@ -87,7 +87,7 @@ APIError read_int_param(unsigned int cam_idx, const char *param_name, CIntParamI
     return api_error;
 }
 
-APIError read_float_param(unsigned int cam_idx, const char *param_name, CFloatParamInfo *out_info)
+APIError get_float_param(unsigned int cam_idx, const char *param_name, CFloatParamInfo *out_info)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
@@ -114,7 +114,7 @@ APIError read_float_param(unsigned int cam_idx, const char *param_name, CFloatPa
     return api_error;
 }
 
-APIError read_bool_param(unsigned int cam_idx, const char *param_name, bool *out_info)
+APIError get_bool_param(unsigned int cam_idx, const char *param_name, bool *out_info)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
@@ -132,7 +132,7 @@ APIError read_bool_param(unsigned int cam_idx, const char *param_name, bool *out
     return api_error;
 }
 
-APIError read_string_param(unsigned int cam_idx, const char *param_name, CStringParamInfo *out_info)
+APIError get_string_param(unsigned int cam_idx, const char *param_name, CStringParamInfo *out_info)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {
@@ -145,7 +145,7 @@ APIError read_string_param(unsigned int cam_idx, const char *param_name, CString
     void *handle = API_STATE.cam_list[cam_idx].handle;
 
     MVCC_STRINGVALUE stStringValue = {0};
-    int nRet = MV_CC_GetFloatValue(handle, param_name, &stStringValue);
+    int nRet = MV_CC_GetStringValue(handle, param_name, &stStringValue);
     if (!check_hik_err(&api_error, nRet))
     {
         return api_error;
@@ -165,7 +165,7 @@ APIError read_string_param(unsigned int cam_idx, const char *param_name, CString
     return api_error;
 }
 
-APIError read_enum_param(unsigned int cam_idx, const char *param_name, CEnumStringList *out_list)
+APIError get_enum_param(unsigned int cam_idx, const char *param_name, CEnumStringList *out_list)
 {
     if (API_STATE.device_list.nDeviceNum <= cam_idx)
     {

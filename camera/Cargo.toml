@@ -9,13 +9,14 @@ log = { workspace = true }
 serde = { workspace = true }
 toml = { workspace = true }
 
-config = { workspace = true }
-utility = { workspace = true }
+# config = { workspace = true }
+# utility = { workspace = true }
 
 [build-dependencies]
 bindgen = { workspace = true }
 cc = { workspace = true }
 
 [features]
+default = ["hikvision"]
 hikvision = []
 mindvision = []
