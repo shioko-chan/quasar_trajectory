@@ -355,72 +355,72 @@ use rand::{rngs::ThreadRng, Rng};
 //         }
 //     }
 // }
-fn camera_launch(sender: TubeSend<Mat>) -> JoinHandle<anyhow::Result<()>> {
-    thread::spawn(move || {
-        init_sdk()?;
-        init_cameras()?;
-        config_camera(0)?;
+// fn camera_launch(sender: TubeSend<Mat>) -> JoinHandle<anyhow::Result<()>> {
+//     thread::spawn(move || {
+//         init_sdk()?;
+//         init_cameras()?;
+//         config_camera(0)?;
 
-        // #[cfg(feature = "gui")]
-        // {
-        //     gui::ImageWs::new(terminate.clone())?;
-        //     let size = (width * height * 3) as u32;
+// #[cfg(feature = "gui")]
+// {
+//     gui::ImageWs::new(terminate.clone())?;
+//     let size = (width * height * 3) as u32;
 
-        //     let (mut rng, mut cnt, mut fps, mut start) = (rand::rng(), 0, 0.0, Instant::now());
+//     let (mut rng, mut cnt, mut fps, mut start) = (rand::rng(), 0, 0.0, Instant::now());
 
-        //     let mut mat = unsafe {
-        //         Mat::new_rows_cols(height as i32, width as i32, CV_8UC3)
-        //             .expect("[可视化] 无法创建Mat")
-        //     };
-        //     let server = TcpListener::bind("0.0.0.0:16700").expect("[可视化] 无法绑定端口 16700");
-        //     server
-        //         .set_nonblocking(true)
-        //         .expect("[可视化] 无法设置TCP Server为非阻塞");
-        //     while !terminate.load(atomic::Ordering::Relaxed) {
-        //         if let Ok((stream, socket)) = server.accept() {
-        //             info!("[可视化] 相机可视化已连接到: {:?}", socket);
-        //             let mut websocket =
-        //                 tungstenite::accept(stream).expect("[可视化] WebSocket 握手失败");
-        //             while !terminate.load(atomic::Ordering::Relaxed) {
-        //                 unsafe {
-        //                     ret = get_frame(CAM_ID, mat.data_mut(), size);
-        //                 }
-        //                 if ret.code != 0 {
-        //                     continue;
-        //                 }
-        //                 cnt += 1;
-        //                 if cnt == 100 {
-        //                     fps = 100.0 / start.elapsed().as_secs_f32();
-        //                     info!("fps: {fps}");
-        //                     start = Instant::now();
-        //                     cnt = 0;
-        //                 }
-        //                 let probability = 30.0 / fps;
-        //                 if rng.random::<f32>() < probability {
-        //                     let mut buf = Vector::new();
-        //                     cv::imgcodecs::imencode(".jpg", &mat, &mut buf, &Vector::new())
-        //                         .expect("[可视化] 无法编码图像");
-        //                     websocket
-        //                         .write(tungstenite::Message::Binary(buf.to_vec().into()))
-        //                         .expect("[可视化] Websocket 发送图片失败");
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        #[cfg(not(feature = "gui"))]
-        {
-            while !terminate.load(atomic::Ordering::Relaxed) {
-                unsafe {
-                    // get_frame();
-                }
-            }
-        }
-        Ok(())
-    })
-}
+//     let mut mat = unsafe {
+//         Mat::new_rows_cols(height as i32, width as i32, CV_8UC3)
+//             .expect("[可视化] 无法创建Mat")
+//     };
+//     let server = TcpListener::bind("0.0.0.0:16700").expect("[可视化] 无法绑定端口 16700");
+//     server
+//         .set_nonblocking(true)
+//         .expect("[可视化] 无法设置TCP Server为非阻塞");
+//     while !terminate.load(atomic::Ordering::Relaxed) {
+//         if let Ok((stream, socket)) = server.accept() {
+//             info!("[可视化] 相机可视化已连接到: {:?}", socket);
+//             let mut websocket =
+//                 tungstenite::accept(stream).expect("[可视化] WebSocket 握手失败");
+//             while !terminate.load(atomic::Ordering::Relaxed) {
+//                 unsafe {
+//                     ret = get_frame(CAM_ID, mat.data_mut(), size);
+//                 }
+//                 if ret.code != 0 {
+//                     continue;
+//                 }
+//                 cnt += 1;
+//                 if cnt == 100 {
+//                     fps = 100.0 / start.elapsed().as_secs_f32();
+//                     info!("fps: {fps}");
+//                     start = Instant::now();
+//                     cnt = 0;
+//                 }
+//                 let probability = 30.0 / fps;
+//                 if rng.random::<f32>() < probability {
+//                     let mut buf = Vector::new();
+//                     cv::imgcodecs::imencode(".jpg", &mat, &mut buf, &Vector::new())
+//                         .expect("[可视化] 无法编码图像");
+//                     websocket
+//                         .write(tungstenite::Message::Binary(buf.to_vec().into()))
+//                         .expect("[可视化] Websocket 发送图片失败");
+//                 }
+//             }
+//         }
+//     }
+// }
+//         #[cfg(not(feature = "gui"))]
+//         {
+//             while !terminate.load(atomic::Ordering::Relaxed) {
+//                 unsafe {
+//                     // get_frame();
+//                 }
+//             }
+//         }
+//         Ok(())
+//     })
+// }
 
-pub fn detector() -> JoinHandle<Result<(), anyhow::Error>> {
-    let (tx, rx) = new_tube();
-    camera_launch(tx)
-}
+// pub fn detector() -> JoinHandle<Result<(), anyhow::Error>> {
+//     let (tx, rx) = new_tube();
+//     camera_launch(tx)
+// }

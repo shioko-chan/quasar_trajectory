@@ -1,4 +1,5 @@
 [[groups]]
+group_name = "图像格式控制"
 parameters = [
     { key = "最大图像宽度", ref = "WidthMax", type = "integer" },
     { key = "最大图像高度", ref = "HeightMax", type = "integer" },
@@ -18,7 +19,6 @@ parameters = [
     { key = "水印信息选择器", ref = "FrameSpecInfoSelector", type = "enum" },
     { key = "是否启用水印信息", ref = "FrameSpecInfo", type = "bool" },
 ]
-group_name = "图像格式控制"
 
 [[groups]]
 group_name = "采集控制"

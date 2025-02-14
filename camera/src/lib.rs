@@ -377,6 +377,12 @@ struct Group {
     group_name: String,
     parameters: Vec<Parameter>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Config {
+    groups: Vec<Group>,
+}
+
 fn init_sdk() -> Result<()> {
     let ret;
     unsafe {
@@ -490,8 +496,8 @@ mod tests {
         init_sdk().unwrap();
         init_cameras(1).unwrap();
         let s = std::fs::read_to_string("cfg/hikvision/definition.toml").unwrap();
-        let groups: Vec<Group> = toml::from_str(&s).unwrap();
-        let res = query_parameters(0, &groups).unwrap();
+        let configs: Config = toml::from_str(&s).unwrap();
+        let res = query_parameters(0, &configs.groups).unwrap();
         println!("{:?}", res);
     }
 }
